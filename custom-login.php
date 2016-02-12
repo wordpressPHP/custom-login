@@ -171,6 +171,7 @@ if ( ! class_exists( 'Custom_Login_Bootstrap' ) ) {
 
 			if ( false !== strpos( $class_name, 'CL_' ) &&
 			     false !== strpos( $class_name, 'CL_Admin_' ) &&
+			     false !== strpos( $class_name, 'CL_Customize_' ) &&
 			     false !== strpos( $class_name, 'Custom_Login_' )
 			) {
 				return;
@@ -180,6 +181,8 @@ if ( ! class_exists( 'Custom_Login_Bootstrap' ) ) {
 
 			if ( false !== strpos( $class_name, 'cl-admin' ) ) {
 				$file = self::dir_path( "includes/admin/class-{$class_name}.php" );
+			} elseif ( false !== strpos( $class_name, 'cl-customize' ) ) {
+				$file = self::dir_path( "includes/customize/class-{$class_name}.php" );
 			} else {
 				$file = self::dir_path( "includes/class-{$class_name}.php" );
 			}

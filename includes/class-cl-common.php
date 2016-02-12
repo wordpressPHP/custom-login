@@ -288,4 +288,26 @@ class CL_Common {
 
 		return $roles;
 	}
+
+	/**
+	 * Gets the colors in the current WordPress admin color scheme.
+	 *
+	 * @uses get_user_meta
+	 * @uses get_current_user_id
+	 * @link https://gist.github.com/JeffMatson/86b44ec68bbc4ce80e6e
+	 *
+	 * @return array
+	 */
+	public static function get_admin_colors() {
+		global $_wp_admin_css_colors;
+
+		$current_color_scheme = get_user_meta( get_current_user_id(), 'admin_color', true );
+
+		$colors = array_merge(
+			$_wp_admin_css_colors[ $current_color_scheme ]->colors,
+			$_wp_admin_css_colors[ $current_color_scheme ]->icon_colors
+		);
+
+		return $colors;
+	}
 }

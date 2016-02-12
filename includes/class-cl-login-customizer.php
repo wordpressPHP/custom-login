@@ -134,7 +134,7 @@ class CL_Login_Customizer {
 				'capability'      => CL_Common::get_option( 'capability', 'general', 'manage_options' ),
 				'title'           => __( 'Custom Login', Custom_Login::DOMAIN ),
 				'description'     => wpautop( sprintf( __( 'Style your wp-login.php page with ease.%s', Custom_Login::DOMAIN ), '&trade;' ) ),
-				'active_callback' => array( 'CL_Common', 'is_wp_login_php' ),
+//				'active_callback' => array( 'CL_Common', 'is_wp_login_php' ),
 			)
 		);
 
@@ -157,7 +157,7 @@ class CL_Login_Customizer {
 			/**
 			 * Add sections
 			 */
-			if ( isset( $customize[ 'add_section' ] ) && $customize[ 'add_section' ] ) {
+			if ( isset( $customize[ 'add_section' ] ) && true === $customize[ 'add_section' ] ) {
 
 				// Get the section args array
 				$section_args = isset( $customize[ 'add_section' ][ 'args' ] )
@@ -173,9 +173,7 @@ class CL_Login_Customizer {
 			/**
 			 * Add settings & control
 			 */
-			if ( isset( $customize[ 'add_setting' ] ) && (
-					is_array( $customize[ 'add_setting' ] ) && array() !== $customize[ 'add_setting' ] )
-			) {
+			if ( isset( $customize[ 'add_setting' ] ) && is_array( $customize[ 'add_setting' ] ) ) {
 
 				// Get the setting default value
 				$default = isset( $setting[ 'default' ] ) ? $setting[ 'default' ] : '';
@@ -193,8 +191,8 @@ class CL_Login_Customizer {
 				/**
 				 * Add settings controls
 				 */
-				if ( ( is_array( $customize[ 'add_control' ] ) && array() !== $customize[ 'add_control' ] ) &&
-				     ( isset( $customize[ 'add_control' ][ 'callback' ] ) && class_exists( $customize[ 'add_control' ][ 'callback' ] ) )
+				if ( ( isset( $customize[ 'add_control' ] ) && is_array( $customize[ 'add_control' ] ) ) &&
+				     ( isset( $customize[ 'add_control' ][ 'callback' ] ) && is_string( $customize[ 'add_control' ][ 'callback' ] ) )
 				) {
 
 					// Get the control args array
@@ -202,8 +200,10 @@ class CL_Login_Customizer {
 					                && array() !== $customize[ 'add_control' ][ 'args' ] ?
 						$customize[ 'add_control' ][ 'args' ] : array();
 
+					$control_class = new $customize[ 'add_control' ][ 'callback' ];
+
 					$wp_customize->add_control(
-						new $customize[ 'add_control' ][ 'callback' ](
+						$control_class(
 							$wp_customize,
 							self::get_control_id( $name ),
 							self::get_wp_customize_control_array( $control_args, $name )
@@ -224,16 +224,24 @@ class CL_Login_Customizer {
 	/**
 	 * This outputs the javascript needed to automate the live settings preview.
 	 * Also keep in mind that this function isn't necessary unless your settings
-	 * are using 'transport'=>'postMessage' instead of the default 'transport' => 'refresh'
+	 * are using 'transport'=>'postMessage' instead  the default 'transpo' => 'refresh'
 	 */
 	public function enqueue_script() {
-//		wp_enqueue_script(
-//			Custom_Login::DOMAIN . '-customizer',
-//			plugins_url( 'js/customizer.js', CUSTOM_LOGIN_FILE ),
-//			array( 'jquery', 'customize-preview' ),
-//			CUSTOM_LOGIN_VERSION,
-//			true
-//		);
+		wp_enqueue_script(
+			Custom_Login::DOMAIN . '-customizer',
+			plugins_url( 'js/customizer.js', CUSTOM_LOGIN_FILE ),
+		    array( 'jquery', 'customize-preview' ),
+			CUSTOM_LOGIN_VERSION,
+			true
+		);
+
+		wp_enqueue_style(
+			Custom_Login::DOMAIN . '-customizer',
+			plugins_url( 'css/customizer.css', CUSTOM_LOGIN_FILE ),
+			array(),
+			CUSTOM_LOGIN_VERSION,
+			'screen'
+		);
 	}
 
 	/**
