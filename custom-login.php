@@ -1,369 +1,205 @@
 <?php
 /**
+ * Custom Login
+ *
+ * @package     CustomLogin
+ * @author      Austin Passy
+ * @copyright   2012 - 2016 Frosty Media
+ * @license     GPL-2.0+
+ *
+ * @wordpress-plugin
  * Plugin Name: Custom Login
  * Plugin URI: https://frosty.media/plugins/custom-login
- * Description: A simple way to customize your WordPress <code>wp-login.php</code> screen! A <a href="https://frosty.media/">Frosty Media</a> plugin.
- * Version: 3.2.3
+ * Description: A simple way to customize your WordPress <code>wp-login.php</code> screen!
+ * A <a href="https://frosty.media/">Frosty Media</a> plugin.
+ * Version: 4.0.0
  * Author: Austin Passy
  * Author URI: http://austin.passy.co
  * Text Domain: custom-login
  * GitHub Plugin URI: https://github.com/thefrosty/custom-login
  * GitHub Branch: master
  *
- * @copyright 2012 - 2015
- * @author Austin Passy
- * @link http://austin.passy.co/
- * @license http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
- *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- *
- * @class Custom_Login
  */
 
-if ( !class_exists( 'Custom_Login' ) ) :
-
-/**
- * Main Custom_Login Class
- *
- * @since 2.0
- */
-final class Custom_Login {
-
-	/** Singleton *************************************************************/
-	private static $instance;
+if ( ! class_exists( 'Custom_Login_Bootstrap' ) ) {
 
 	/**
-	 * Plugin vars
-	 * @return string
+	 * Class Custom_Login_Bootstrap
 	 */
-	var	$version = '3.2.3',
-		$menu_page,
-		$prefix;
-
-	/**
-	 * Private settings
-	 */
-	public $settings_api;
-
-	/**
-	 * Main Instance
-	 *
-	 * @staticvar 	array 	$instance
-	 * @return 		The one true instance
-	 */
-	public static function instance() {
-		if ( ! isset( self::$instance ) && ! ( self::$instance instanceof Custom_Login ) ) {
-			self::$instance = new Custom_Login;
-			self::$instance->setup_constants();
-
-			add_action( 'plugins_loaded', array( self::$instance, 'plugin_textdomain' ) );
-
-			self::$instance->includes();
-			self::$instance->actions();
-		}
-		return self::$instance;
-	}
-
-	/**
-	 * Setup plugin constants
-	 *
-	 * @access 	private
-	 * @since 	3.0
-	 * @return 	void
-	 */
-	private function setup_constants() {
-
-		// API URL
-		if ( ! defined( 'CUSTOM_LOGIN_API_URL' ) ) {
-			define( 'CUSTOM_LOGIN_API_URL', 'https://frosty.media/' );
-		}
-
-		// Plugin version
-		if ( ! defined( 'CUSTOM_LOGIN_VERSION' ) ) {
-			define( 'CUSTOM_LOGIN_VERSION', $this->version );
-		}
-
-		// Plugin Root File
-		if ( ! defined( 'CUSTOM_LOGIN_FILE' ) ) {
-			define( 'CUSTOM_LOGIN_FILE', __FILE__ );
-		}
-
-		// Plugin Folder Path
-		if ( ! defined( 'CUSTOM_LOGIN_DIR' ) ) {
-			define( 'CUSTOM_LOGIN_DIR', plugin_dir_path( CUSTOM_LOGIN_FILE ) );
-		}
-
-		// Plugin Folder URL
-		if ( ! defined( 'CUSTOM_LOGIN_URL' ) ) {
-			define( 'CUSTOM_LOGIN_URL', plugin_dir_url( CUSTOM_LOGIN_FILE ) );
-		}
-
-		// Plugin Root Basename
-		if ( ! defined( 'CUSTOM_LOGIN_BASENAME' ) ) {
-			define( 'CUSTOM_LOGIN_BASENAME', plugin_basename( CUSTOM_LOGIN_FILE ) );
-		}
-
-		// Plugin Dirname
-		if ( ! defined( 'CUSTOM_LOGIN_DIRNAME' ) ) {
-			define( 'CUSTOM_LOGIN_DIRNAME', dirname( CUSTOM_LOGIN_BASENAME ) );
-		}
-
-		// Plugin Settings Name
-		if ( ! defined( 'CUSTOM_LOGIN_OPTION' ) ) {
-			define( 'CUSTOM_LOGIN_OPTION', str_replace( '-', '_', CUSTOM_LOGIN_DIRNAME ) );
-		}
-	}
-
-	/**
-	 * Load the plugin translations
-	 *
-	 */
-	public function plugin_textdomain() {
-		load_plugin_textdomain( CUSTOM_LOGIN_DIRNAME, false, CUSTOM_LOGIN_DIRNAME . '/languages/' );
-	}
-
-	/**
-	 * Includes required functions
-	 *
-	 */
-	private function includes() {
-
-		require_once( trailingslashit( CUSTOM_LOGIN_DIR ) . 'includes/class-cl-common.php' );
-		require_once( trailingslashit( CUSTOM_LOGIN_DIR ) . 'includes/class-cl-cron.php' );
-		require_once( trailingslashit( CUSTOM_LOGIN_DIR ) . 'includes/class-cl-extensions.php' );
-		require_once( trailingslashit( CUSTOM_LOGIN_DIR ) . 'includes/class-cl-templates.php' );
-		require_once( trailingslashit( CUSTOM_LOGIN_DIR ) . 'includes/class-cl-scripts-styles.php' );
-		require_once( trailingslashit( CUSTOM_LOGIN_DIR ) . 'includes/class-cl-settings-api.php' );
-		require_once( trailingslashit( CUSTOM_LOGIN_DIR ) . 'includes/class-cl-settings-upgrades.php' );
-		require_once( trailingslashit( CUSTOM_LOGIN_DIR ) . 'includes/class-cl-wp-login.php' );
-		require_once( trailingslashit( CUSTOM_LOGIN_DIR ) . 'includes/functions.php' );
-
-		if ( is_admin() ) {
-			require_once( trailingslashit( CUSTOM_LOGIN_DIR ) . 'includes/admin/dashboard.php' );
-			require_once( trailingslashit( CUSTOM_LOGIN_DIR ) . 'includes/admin/plugins.php' );
-			require_once( trailingslashit( CUSTOM_LOGIN_DIR ) . 'includes/admin/import-export.php' );
-			require_once( trailingslashit( CUSTOM_LOGIN_DIR ) . 'includes/admin/tracking.php' );
-		//	require_once( trailingslashit( CUSTOM_LOGIN_DIR ) . 'includes/admin/roost.php' ); // Not enabled until global domains available.
-		}
-	}
-
-	/**
-	 * To infinity and beyond
-	 */
-	private function actions() {
-
-		$this->prefix = CUSTOM_LOGIN_OPTION;
-
-		register_activation_hook( CUSTOM_LOGIN_FILE,				array( $this, 'activate' ) );
-
-		add_action( 'login_head',								array( $this, 'cl_version_in_header' ), 1 );
-		add_action( 'wp_head',									array( $this, 'cl_version_in_header' ) );
-		add_action( 'admin_menu',								array( $this, 'admin_menu' ), 9 );
-		add_action( 'admin_init',								array( $this, 'load_settings' ), 8 );
-		add_action( $this->prefix . '_after_sanitize_options',	array( $this, 'delete_transients' ), 8 );
-
-		add_action( 'admin_notices',								array( $this, 'show_notifications' ) );
-		add_action( 'admin_init',								array( $this, 'notification_ignore' ) );
-
-		do_action( $this->prefix . '_actions' );
-	}
-
-	/**
-	 * Runs on plugin install.
-	 *
-	 * @since		3.1
-	 * @return		void
-	 */
-	function activate() {
-	}
-
-	/**
-	 * Adds CL Version to the <head> tag
-	 *
-	 * @since	3.0.0
-	 * @return	void
-	*/
-	function cl_version_in_header(){
-		echo '<meta name="generator" content="Custom Login v' . CUSTOM_LOGIN_VERSION . '" />' . "\n";
-	}
-
-    /**
-	 * Register the plugin page
-	 */
-	public function admin_menu() {
-
-		$capability = CL_Common::get_option( 'capability', 'general', 'manage_options' );
-
-		$this->menu_page = add_options_page(
-			__( 'Custom Login Settings', CUSTOM_LOGIN_DIRNAME ),
-			__( 'Custom Login', CUSTOM_LOGIN_DIRNAME ),
-			$capability,
-			CUSTOM_LOGIN_DIRNAME,
-			array( $this, 'settings_page' )
-		);
-	}
-
-	/**
-	 * Display the plugin settings options page
-	 */
-	public function settings_page() { ?>
-
-		<div class="wrap">
-			<?php $this->settings_api->settings_html(); ?>
-		</div><?php
-	}
-
-	/**
-	 * Display the plugin settings options page
-	 */
-	public function load_settings() {
-
-		include( trailingslashit( CUSTOM_LOGIN_DIR ) . 'includes/default-settings.php' );
-		$this->settings_api = new CL_Settings_API(
-			$sections,
-			$fields,
-			array(
-				'option_name'	=> CUSTOM_LOGIN_OPTION,
-				'option_group'	=> CUSTOM_LOGIN_OPTION . '_group',
-				'domain'			=> CUSTOM_LOGIN_DIRNAME,
-				'prefix'			=> $this->prefix,
-				'version'		=> $this->version,
-				'menu_page'		=> $this->menu_page,
-				'nonce'			=> CUSTOM_LOGIN_OPTION . '_nonce_' . CUSTOM_LOGIN_BASENAME,
-				'file'			=> CUSTOM_LOGIN_FILE,
-			)
-		);
-		$this->settings_api->admin_init();
-	}
-
-	/**
-	 * Hook into the 'sanitize_options' hook in the Settings API
-	 * and remove the transient settings for the style and script.
-	 *
-	 * @since	3.0.0
-	 */
-	public function delete_transients() {
-		delete_transient( CL_Common::get_transient_key( 'style' ) );
-		delete_transient( CL_Common::get_transient_key( 'script' ) );
-	}
-
-	/**
-	 * Show global notifications if they are allowed.
-	 *
-	 */
-    function show_notifications() {
-
-		$is_cl_screen	= CL_Common::is_settings_page();
-		$transient_key	= CL_Common::get_transient_key( 'announcement' );
-		$ignore_key		= CUSTOM_LOGIN_OPTION . '_ignore_announcement';
-		$old_message	= get_option( CUSTOM_LOGIN_OPTION . '_announcement_message' );
-		$user_meta		= get_user_meta( get_current_user_id(), $ignore_key, true );
-		$capability		= CL_Common::get_option( 'capability', 'general', 'manage_options' );
+	class Custom_Login_Bootstrap {
 
 		/**
-		delete_user_meta( get_current_user_id(), $ignore_key, 1 );
-		delete_transient( $transient_key );
-		update_option( CUSTOM_LOGIN_OPTION . '_announcement_message', '' ); //*/
+		 * Current version number
+		 * @var string
+		 */
+		const VERSION = '4.0.0';
 
-		// Current user can't manage options
-		if ( !current_user_can( $capability ) )
-			return;
+		/**
+		 * Plugin text domain
+		 * @var string
+		 */
+		const DOMAIN = 'custom-login';
 
-		if ( !$is_cl_screen ) {
+		/** Singleton *************************************************************/
+		private static $instance;
 
-			// Let's not show this at all if not on out menu page. @since 3.1
-			return;
+		/**
+		 * Get the instance of the plugin.
+		 *
+		 * @return Custom_Login_Bootstrap The one true instance
+		 */
+		public static function get_instance() {
 
-			// Global notifications
-			if ( 'off' === CL_Common::get_option( 'admin_notices', 'general', 'off' ) )
-				return;
+			if ( ! isset( self::$instance ) ) {
+				self::$instance = new self;
+			}
 
-			// Make sure 'Frosty_Media_Notifications' isn't activated
-			if ( class_exists( 'Frosty_Media_Notifications' ) )
-				return;
+			return self::$instance;
 		}
 
-		// https://raw.github.com/thefrosty/custom-login/master/extensions.json
-		$message_url  = esc_url( add_query_arg( array( 'edd_action' => 'cl_announcements' ), trailingslashit( CUSTOM_LOGIN_API_URL ) . 'cl-checkin-api/' ) );
+		/**
+		 * Custom_Login_Bootstrap constructor.
+		 */
+		private function __construct() {
 
-		$announcement = CL_Common::wp_remote_get(
-			$message_url,
-			$transient_key,
-			DAY_IN_SECONDS,
-			'CustomLogin' // We need our custom $user_agent
-		);
-
-		// Bail if errors
-		if ( is_wp_error( $announcement ) )
-			return;
-
-		// Bail if false or empty
-		if ( !$announcement || empty( $announcement ) )
-			return;
-
-		if ( trim( $old_message ) !== trim( $announcement->message ) && !empty( $old_message ) ) {
-			delete_user_meta( get_current_user_id(), $ignore_key );
-			delete_transient( $transient_key );
-			update_option( CUSTOM_LOGIN_OPTION . '_announcement_message', $announcement->message );
+			$this->setup_constants();
+			$this->add_actions();
 		}
 
-		$html  = '<div class="updated"><p>';
-		$html .= !$is_cl_screen ? // If we're on our settings page let not show the dismiss notice link.
-			sprintf( '%2$s <span class="alignright">| <a href="%3$s">%1$s</a></span>',
-				__( 'Dismiss', CUSTOM_LOGIN_DIRNAME ),
-				$announcement->message,
-				esc_url( add_query_arg( $ignore_key, wp_create_nonce( $ignore_key ), admin_url( 'options-general.php?page=custom-login' ) ) ),
-				esc_url( admin_url( 'options-general.php?page=custom-login#custom_login_general' ) )
-			) :
-			sprintf( '%s', $announcement->message );
-		$html .= '</p></div>';
+		/**
+		 * Setup plugin constants.
+		 *
+		 * @access private
+		 * @return void
+		 */
+		private function setup_constants() {
 
-		if ( ( !$user_meta && 1 !== $user_meta ) || $is_cl_screen )
-			echo $html;
+			// Plugin version
+			if ( ! defined( 'CUSTOM_LOGIN_VERSION' ) ) {
+				define( 'CUSTOM_LOGIN_VERSION', self::VERSION );
+			}
+
+			// Plugin Root File
+			if ( ! defined( 'CUSTOM_LOGIN_FILE' ) ) {
+				define( 'CUSTOM_LOGIN_FILE', __FILE__ );
+			}
+
+			// Plugin Folder Path
+			if ( ! defined( 'CUSTOM_LOGIN_DIR' ) ) {
+				define( 'CUSTOM_LOGIN_DIR', plugin_dir_path( CUSTOM_LOGIN_FILE ) );
+			}
+
+			// Plugin Folder URL
+			if ( ! defined( 'CUSTOM_LOGIN_URL' ) ) {
+				define( 'CUSTOM_LOGIN_URL', plugin_dir_url( CUSTOM_LOGIN_FILE ) );
+			}
+
+			// Plugin Root Basename
+			if ( ! defined( 'CUSTOM_LOGIN_BASENAME' ) ) {
+				define( 'CUSTOM_LOGIN_BASENAME', plugin_basename( CUSTOM_LOGIN_FILE ) );
+			}
+		}
+
+		/**
+		 * Setup the base action hooks.
+		 */
+		private function add_actions() {
+
+			add_action( 'plugins_loaded', array( $this, 'autoload_register' ), 10 );
+			add_action( 'plugins_loaded', array( $this, 'dependency_check' ), 989 );
+			add_action( 'init', array( $this, 'hookup' ), 5 );
+			add_action( 'init', array( $this, 'do_actions' ), 10 );
+		}
+
+		/**
+		 * Register our autoloader.
+		 *
+		 * @return void
+		 */
+		public function autoload_register() {
+			spl_autoload_register( array( $this, 'autoload_classes' ) );
+		}
+
+		/**
+		 * Setup our connected hooks.
+		 *      -It's just a hookup
+		 */
+		public function hookup() {
+			CL_Hookup::add_hooks();
+		}
+
+		/**
+		 *
+		 */
+		public function dependency_check() {
+			new CL_Dependency_Check();
+		}
+
+		/**
+		 * Create our custom action hooks.
+		 * These actions are called on the `init` hook; priority '10'.
+		 */
+		public function do_actions() {
+
+			if ( is_admin() ) {
+				do_action( 'custom_login_admin_init' );
+			}
+
+			do_action( 'custom_login_init', CL_Common::is_wp_login_php() );
+		}
+
+		/**
+		 * Helper method to provide directory path to Custom Login.
+		 *
+		 * @param string $path Path to append
+		 *
+		 * @return string Directory with optional path appended
+		 */
+		public static function dir_path( $path = '' ) {
+			return CUSTOM_LOGIN_DIR . $path;
+		}
+
+		/**
+		 * Autoload our Custom Login classes when needed.
+		 *
+		 * @param string $class_name Name of the class being requested
+		 */
+		protected function autoload_classes( $class_name ) {
+
+			if ( false !== strpos( $class_name, 'CL_' ) &&
+			     false !== strpos( $class_name, 'CL_Admin_' ) &&
+			     false !== strpos( $class_name, 'Custom_Login_' )
+			) {
+				return;
+			}
+
+			$class_name = $this->sanitize_class_file_name( $class_name );
+
+			if ( false !== strpos( $class_name, 'cl-admin' ) ) {
+				$file = self::dir_path( "includes/admin/class-{$class_name}.php" );
+			} else {
+				$file = self::dir_path( "includes/class-{$class_name}.php" );
+			}
+
+			if ( file_exists( $file ) ) {
+				include_once( $file );
+			}
+		}
+
+		/**
+		 * Replace class name underscores to file dashes.
+		 *
+		 * @param string $class_name The incoming class name.
+		 *
+		 * @return string A sanitized file name
+		 */
+		private function sanitize_class_file_name( $class_name ) {
+			return str_replace( '_', '-', strtolower( $class_name ) );
+		}
 	}
 
-	/**
-	 * Remove the admin notification.
-	 *
-	 * @return void
-	 */
-	function notification_ignore() {
-
-		$ignore_key = CUSTOM_LOGIN_OPTION . '_ignore_announcement';
-
-		// Bail if not set
-		if ( !isset( $_GET[$ignore_key] ) )
-			return;
-
-		// Check nonce
-	    check_admin_referer( $ignore_key, $ignore_key );
-
-		// If user clicks to ignore the notice, add that to their user meta
-		add_user_meta( get_current_user_id(), $ignore_key, 1, true );
-	}
-
+	add_action( 'plugins_loaded', array( 'Custom_Login_Bootstrap', 'get_instance' ), 2 );
 }
-
-endif; // End if class_exists check
-
-/**
- * The main function responsible for returning the one true
- * Instance to functions everywhere.
- *
- * Use this function like you would a global variable, except without needing
- * to declare the global.
- *
- * Example: <?php $custom_login = CUSTOMLOGIN(); ?>
- *
- * @return The one true Instance
- */
-if ( !function_exists( 'CUSTOMLOGIN' ) ) {
-	function CUSTOMLOGIN() {
-		return Custom_Login::instance();
-	}
-}
-
-// Out of the frying pan, and into the fire.
-CUSTOMLOGIN();

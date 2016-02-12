@@ -23,17 +23,8 @@ thumbs.db
 Thumbs.db
 Desktop.ini
 
-# Dreamweaver
-_notes
-dwsync.xml
-*_notes
-*dwsync.xml
-
 # Folders to ignore
 .hg
 .svn
 publish
 .idea
-
-# WordPress
-/wp-config-sample.php

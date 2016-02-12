@@ -1,0 +1,22 @@
+{
+  "name": "thefrosty/custom-login",
+  "type": "wordpress-plugin",
+  "description": "A simple way to customize your WordPress wp-login.php screen!",
+  "homepage": "http://frosty.media/plugin/custom-login",
+  "license": "GPLv2 or later",
+  "authors": [
+    {
+      "name" : "Austin Passy",
+      "email" : "austin@frosty.media",
+      "homepage" : "http://austin.passy.co"
+    }
+  ],
+  "require": {
+    "php": ">=5.4",
+    "composer/installers": "~1.0"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "~4.0",
+    "satooshi/php-coveralls": "dev-master"
+  }
+}

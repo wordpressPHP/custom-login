@@ -4,7 +4,7 @@
  *
  * @package     CustomLogin
  * @subpackage  Uninstall
- * @copyright   Copyright (c) 2014-2015, Austin Passy
+ * @copyright   Copyright (c) 2014-2016, Austin Passy
  * @license     http://opensource.org/licenses/gpl-2.0.php GNU Public License
  * @since       3.0.0
  */
