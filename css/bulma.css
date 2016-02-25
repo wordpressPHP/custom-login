@@ -47,7 +47,7 @@
 
 .select select:active, .select select:focus {
     border-color: #1fc8db;
-    outline: none;
+    outline: 0;
 }
 
 .select select[disabled], .select select[disabled]:hover {

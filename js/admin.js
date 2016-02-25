@@ -114,6 +114,17 @@
         });
 
         /**
+         *** Toggles ************************
+         ************************************
+         ************************************
+         */
+        $('[data-toggle]').each(function (index, element) {
+            $(element).on('click', function () {
+                $($(element).data('toggle')).slideToggle('fast');
+            });
+        });
+
+        /**
          *** Form Submit ********************
          ************************************
          ************************************
@@ -124,6 +135,31 @@
             $this.attr('form', form.attr('id'));
             form.submit();
         }); //*/
+
+        /**
+         *** CodeMirror *********************
+         ************************************
+         ************************************
+         */
+        if ('undefined' !== typeof CodeMirror) {
+            $('textarea').each(function () {
+                if ($(this).data('codemirror')) {
+                    CodeMirror.fromTextArea(document.getElementById($(this).attr('id')), {
+                        lineNumbers: true,
+                        mode: $(this).data('type') ? $(this).data('type') : 'htmlmixed'
+                    });
+                }
+            });
+        }
+
+        /**
+         *** Callback Fields Types **********
+         ************************************
+         ************************************
+         */
+        $('div.field-type-html-break').each(function () {
+            $(this).parents('tr').find('th').wrapInner('<h4/>');
+        });
 
     }); // (document)
 

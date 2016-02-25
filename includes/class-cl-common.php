@@ -1,5 +1,8 @@
 <?php
 
+// Exit if accessed directly
+defined( 'ABSPATH' ) || exit;
+
 /**
  * Class CL_Common
  */
@@ -121,10 +124,15 @@ class CL_Common {
 	 */
 	public static function get_data_uri( $_image, $mime = '' ) {
 
-		$image = trailingslashit( CUSTOM_LOGIN_URL );
-		$image .= $_image;
-
-		$data = file_exists( $image ) ? base64_encode( file_get_contents( $image ) ) : '';
+		$image = CUSTOM_LOGIN_URL . $_image;
+		$data = file_exists( $image ) ?
+			base64_encode(
+				wp_remote_retrieve_body(
+					wp_remote_get(
+						esc_url_raw( $image )
+					)
+				)
+			) : '';
 
 		return ! empty( $data ) ? 'data:image/' . $mime . ';base64,' . $data : '';
 	}
@@ -132,12 +140,14 @@ class CL_Common {
 	/**
 	 * Get's the cached transient key.
 	 *
+	 * @param string $input
+	 *
 	 * @return string
 	 */
 	public static function get_transient_key( $input ) {
 
 		$len = is_multisite() ? 40 : 45;
-		$key = 'custom_login_';
+		$key = 'custom_login_' . $input . '_';
 		$key = $key . substr( md5( $input ), 0, $len - strlen( $key ) );
 
 		return $key;
@@ -146,29 +156,34 @@ class CL_Common {
 	/**
 	 * Helper function to make remote calls
 	 *
-	 * @since        3.0.0
-	 * @updated    3.0.8
+	 * @since 3.0.0
+	 * @updated 3.0.8
+	 *
+	 * @param bool|string $url
+	 * @param string $transient_key
+	 * @param int $expiration
+	 * @param string $user_agent
+	 *
+	 * @return mixed
 	 */
-	public static function wp_remote_get( $url = false, $transient_key, $expiration = null, $user_agent = 'WordPress' ) {
+	public static function wp_remote_get( $url = false, $transient_key, $expiration = 0, $user_agent = 'WordPress' ) {
 
 		if ( ! $url ) {
 			return false;
 		}
 
-		if ( 'WordPress' == $user_agent ) {
-			global $wp_version;
-			$_version = $wp_version;
+		if ( 'wordpress' === strtolower( $user_agent ) ) {
+			$_version = $GLOBALS[ 'wp_version' ];
 		} else {
 			$_version = CUSTOM_LOGIN_VERSION;
 		}
 
-		$expiration = null !== $expiration ? $expiration : WEEK_IN_SECONDS;
+		$expiration = 0 !== $expiration ? abs( $expiration ) : WEEK_IN_SECONDS;
 
-		#	delete_transient( $transient_key );
 		if ( false === ( $json = get_transient( $transient_key ) ) ) {
 
 			$response = wp_remote_get(
-				esc_url( $url ),
+				esc_url_raw( $url ),
 				array(
 					'timeout'    => apply_filters( 'cl_wp_remote_get_timeout', (int) 15 ),
 					'sslverify'  => false,
@@ -194,7 +209,7 @@ class CL_Common {
 					return $json;
 				}
 			} else {
-				return false; // Error, lets return!
+				delete_transient( $transient_key );
 			}
 		}
 
@@ -204,26 +219,25 @@ class CL_Common {
 	/**
 	 * Helper function check if we're on our settings page.
 	 *
-	 * @since        3.0.9
+	 * @since 3.0.9
+	 *
+	 * @return bool
 	 */
 	public static function is_settings_page() {
 
-		$return = true;
+		$return = false;
 		$screen = get_current_screen();
 
 		if ( null !== $screen ) {
 
-			if ( $screen->id !== CL_Settings_API::$menu_page ) {
-				$return = false;
+			if ( $screen->id === CL_Settings_API::$menu_page ) {
+				$return = true;
 			}
 		} else {
 
-			if ( 'options-general.php' != $GLOBALS[ 'pagenow' ] ) {
-				$return = false;
-			}
-
-			if ( ! isset( $_GET[ 'page' ] ) || Custom_Login_Bootstrap::DOMAIN !== $_GET[ 'page' ] ) {
-				$return = false;
+			if ( 'options-general.php' === $GLOBALS[ 'pagenow' ] &&
+			     ( isset( $_GET[ 'page' ] ) && Custom_Login_Bootstrap::DOMAIN === $_GET[ 'page' ] ) ) {
+				$return = true;
 			}
 		}
 
@@ -309,5 +323,16 @@ class CL_Common {
 		);
 
 		return $colors;
+	}
+
+	/**
+	 * @return string
+	 */
+	public static function get_extension_description() {
+		return sprintf( '<span class="description cl-extensions-desc">%s</span>',
+			_x( 'A Custom Login Extension <strong>is</strong> a WordPress plugin. It\'s called an "extension" because it will
+not work without Custom Login installed; hence extending the functionality of Custom Login.',
+				'Defining what a Custom Login Extension is.', Custom_Login_Bootstrap::DOMAIN )
+		);
 	}
 }

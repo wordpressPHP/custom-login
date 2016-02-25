@@ -1,13 +1,21 @@
 <?php
 
-use Custom_Login_Bootstrap as Custom_Login;
+// Exit if accessed directly
+defined( 'ABSPATH' ) || exit;
 
+/**
+ * Class CL_Admin_Field_Types
+ */
 class CL_Admin_Field_Types {
 
 	/**
 	 * @var CL_Settings_API
 	 */
 	private $cl_settings_api;
+
+	/**
+	 * @var string
+	 */
 	private $id;
 
 	/**
@@ -16,7 +24,11 @@ class CL_Admin_Field_Types {
 	 * @param CL_Settings_API $settings_api
 	 */
 	public function __construct( CL_Settings_API $settings_api ) {
+
+		// Pass in our settings api dependency
 		$this->cl_settings_api = $settings_api;
+
+		// Get our settings id
 		$this->id = CL_Settings_API::SETTING_ID;
 	}
 
@@ -64,13 +76,14 @@ class CL_Admin_Field_Types {
 		$type  = ! empty( $args[ 'type' ] ) ? $args[ 'type' ] : 'text';
 		$class = ! empty( $args[ 'class' ] ) ? $args[ 'class' ] : '';
 
-		$html = sprintf( '<input type="%1$s" class="%2$s-text %3$s" id="%4$s[%5$s]" name="%4$s[%5$s]" value="%6$s">',
+		$html = sprintf( '<input type="%1$s" class="%2$s-text %3$s" id="%4$s[%5$s]" name="%4$s[%5$s]" value="%6$s"%7$s>',
 			$type,
 			$size,
 			$class,
 			$args[ 'section' ],
 			$args[ 'id' ],
-			$value
+			$value,
+			$this->get_extra_field_params( $args )
 		);
 		$html .= $this->get_field_description( $args );
 
@@ -183,15 +196,14 @@ class CL_Admin_Field_Types {
 	 */
 	public function colorpicker( array $args ) {
 
-		$value   = esc_attr( CL_Common::get_option( $args[ 'id' ], $args[ 'section' ], $args[ 'default' ] ) );
-		$check   = esc_attr( CL_Common::get_option( $args[ 'id' ] . '_checkbox', $args[ 'section' ], $args[ 'default' ] ) );
-		$opacity = esc_attr( CL_Common::get_option( $args[ 'id' ] . '_opacity', $args[ 'section' ], $args[ 'default' ] ) );
-		$size    = isset( $args[ 'size' ] ) && ! is_null( $args[ 'size' ] ) ? $args[ 'size' ] : 'small';
-		$options = array( '1', '0.9', '0.8', '0.7', '0.6', '0.5', '0.4', '0.3', '0.2', '0.1', '0', );
-		$class   = 'on' != $check ? ' hidden' : '';
+		$value = esc_attr( CL_Common::get_option( $args[ 'id' ], $args[ 'section' ], $args[ 'default' ] ) );
+		$size  = isset( $args[ 'size' ] ) && ! is_null( $args[ 'size' ] ) ? $args[ 'size' ] : 'small';
+		$param = $this->get_extra_field_params( $args );
+
+		/* Enqueue our required script */
+		$this->cl_settings_api->add_scripts_array( 'wp-color-picker-alpha' );
 
 		/* Localize the array */
-
 		$this->cl_settings_api->add_localize_array(
 			'colorpicker',
 			array(
@@ -201,27 +213,21 @@ class CL_Admin_Field_Types {
 		);
 
 		/* Color */
-		$html = '<div class="cl-colorpicker-wrap">';
-		$html .= sprintf( '<input type="text" class="%1$s-text" id="%2$s[%3$s]" name="%2$s[%3$s]" value="%4$s" style="float:left">', $size, $args[ 'section' ], $args[ 'id' ], $value );
-
-		/* Allow Opacity */
-		$html .= '<div class="checkbox-wrap">';
-		$html .= sprintf( '<input type="hidden" name="%1$s[%2$s]" value="off" >', $args[ 'section' ], $args[ 'id' ] . '_checkbox' );
-		$html .= sprintf( '<input type="checkbox" class="checkbox" id="%1$s[%2$s]" name="%1$s[%2$s]" value="on"%4$s >', $args[ 'section' ], $args[ 'id' ] . '_checkbox', $check, checked( $check, 'on', false ) );
-		$html .= sprintf( __( '<label for="%1$s[%2$s]">Opacity</label>', Custom_Login::DOMAIN ), $args[ 'section' ], $args[ 'id' ] . '_checkbox' );
-		$html .= '</div>';
-
-		/* Opacity */
-		$html .= sprintf( '<select class="%1$s%4$s" name="%2$s[%3$s]" id="%2$s[%3$s]" style="margin-left:70px;">', $size, $args[ 'section' ], $args[ 'id' ] . '_opacity', $class );
-		foreach ( $options as $key ) {
-			$html .= sprintf( '<option value="%s"%s>%s</option>', $key, selected( $opacity, $key, false ), $key );
-		}
-		$html .= '</select>';
-		$html .= '<br class="clear">';
-		$html .= '</div>';
+		$html = sprintf(
+			'<input type="text" class="%1$s-text color-picker" id="%2$s[%3$s]" name="%2$s[%3$s]" value="%4$s" %5$s>',
+			$size,
+			$args[ 'section' ],
+			$args[ 'id' ],
+			$value,
+			$param
+		);
 		$html .= $this->get_field_description( $args );
 
 		echo $html;
+	}
+
+	public function alphacolor( array $args ) {
+		$this->colorpicker( $args );
 	}
 
 	/**
@@ -338,16 +344,16 @@ class CL_Admin_Field_Types {
 
 		$value = esc_textarea( CL_Common::get_option( $args[ 'id' ], $args[ 'section' ], $args[ 'default' ] ) );
 		$size  = isset( $args[ 'size' ] ) && ! is_null( $args[ 'size' ] ) ? $args[ 'size' ] : 'regular';
-		$extra = isset( $args[ 'extra' ] ) && is_array( $args[ 'extra' ] ) ? $args[ 'extra' ] : null;
-		$param = '';
+		$param = $this->get_extra_field_params( $args );
 
-		if ( null !== $extra ) {
-			foreach ( $extra as $p_key => $p_value ) {
-				$param .= $p_key . '="' . $p_value . '"';
-			}
-		}
-
-		$html = sprintf( '<textarea rows="5" cols="55" class="%1$s-text" id="%2$s[%3$s]" name="%2$s[%3$s]"%5$s>%4$s</textarea>', $size, $args[ 'section' ], $args[ 'id' ], stripslashes( $value ), $param );
+		$html = sprintf(
+			'<textarea rows="5" cols="55" class="%1$s-text" id="%2$s[%3$s]" name="%2$s[%3$s]"%5$s>%4$s</textarea>',
+			$size,
+			$args[ 'section' ],
+			$args[ 'id' ],
+			stripslashes( $value ),
+			$param
+		);
 		$html .= $this->get_field_description( $args );
 
 		echo $html;
@@ -359,10 +365,11 @@ class CL_Admin_Field_Types {
 	 * @param array $args settings field args
 	 */
 	public function html_break( array $args ) {
-		static $counter = 0;
+		static $counter;
 
 		if ( isset( $args[ 'desc' ] ) ) {
-			printf( '<div class="section-%s-%d"><h4>%s</h4></div><hr>', $args[ 'section' ], $counter, $args[ 'desc' ] );
+
+			printf( '<div class="section-%s-%d field-type-html-break">%s</div><hr>', $args[ 'section' ], $counter, $args[ 'desc' ] );
 			$counter ++;
 		}
 	}
@@ -373,10 +380,7 @@ class CL_Admin_Field_Types {
 	 * @param array $args settings field args
 	 */
 	public function raw( array $args ) {
-
-		$html = isset( $args[ 'desc' ] ) ? sprintf( '<div class="raw-html">%s</div>', $args[ 'desc' ] ) : '';
-
-		echo $html;
+		echo isset( $args[ 'desc' ] ) ? sprintf( '<div class="raw-html">%s</div>', $args[ 'desc' ] ) : '';
 	}
 
 	/**

@@ -11,7 +11,6 @@ use Custom_Login_Bootstrap as Custom_Login;
 class CL_Login_Customizer {
 
 	static $setting_id = 'design';
-	static $panel_id;
 
 	/**
 	 * Add class hooks.
@@ -72,44 +71,46 @@ class CL_Login_Customizer {
 
 		$defaults = array(
 			'title'           => $title,
-			'panel'           => self::$panel_id, // WordPress 4.3
-			'priority'        => null,
+			'panel'           => CL_Settings_API::SETTING_ID, // WordPress 4.3
+			'capability'      => CL_Common::get_option( 'capability', 'general', 'manage_options' ),
+			'priority'        => 10,
 			'description'     => '',
-			'active_callback' => null,
+			'active_callback' => '__return_true',
 		);
 
 		return wp_parse_args( $args, $defaults );
 	}
 
 	/**
-	 * @param array $args
-	 * @param mixed $default
+	 * @param array $args Incoming settings args array.
+	 * @param mixed $default (Optional) The default value.
 	 *
 	 * @return array
 	 */
 	protected static function get_wp_customize_setting_array( array $args, $default = null ) {
 
 		$defaults = array(
-			'default'   => $default,
 			'type'      => 'option',
 			'transport' => 'postMessage',
+			'default'   => $default,
 		);
 
 		return wp_parse_args( $args, $defaults );
 	}
 
 	/**
-	 * @param array $args
-	 * @param string $control_id
+	 * @param array $args Incoming control args array.
+	 * @param string $section_name The section this setting control is part of.
 	 *
 	 * @return array
 	 */
-	protected static function get_wp_customize_control_array( array $args, $control_id ) {
+	protected static function get_wp_customize_control_array( array $args, $section_name ) {
 
 		$defaults = array(
-			'label'    => '',
-			'section'  => '',
-			'settings' => self::get_control_id( $control_id ),
+			'label'   => '',
+			'section' => self::get_section_id( $section_name ),
+			//			'settings' => self::get_control_id( $setting_name ),
+			'type'    => null,
 		);
 
 		return wp_parse_args( $args, $defaults );
@@ -126,15 +127,13 @@ class CL_Login_Customizer {
 	 */
 	public function register( WP_Customize_Manager $wp_customize ) {
 
-		self::$panel_id = CL_Settings_API::SETTING_ID;
-
-		$wp_customize->add_panel( self::$panel_id,
+		$wp_customize->add_panel( CL_Settings_API::SETTING_ID,
 			array(
 				'priority'        => 10,
 				'capability'      => CL_Common::get_option( 'capability', 'general', 'manage_options' ),
 				'title'           => __( 'Custom Login', Custom_Login::DOMAIN ),
 				'description'     => wpautop( sprintf( __( 'Style your wp-login.php page with ease.%s', Custom_Login::DOMAIN ), '&trade;' ) ),
-//				'active_callback' => array( 'CL_Common', 'is_wp_login_php' ),
+				'active_callback' => array( 'CL_Common', 'is_wp_login_php' ),
 			)
 		);
 
@@ -151,8 +150,9 @@ class CL_Login_Customizer {
 				continue;
 			}
 
-			$customize = $setting[ 'customize' ];
-			$name      = isset( $setting[ 'name' ] ) ? $setting[ 'name' ] : strtolower( $setting[ 'label' ] );
+			$customize    = $setting[ 'customize' ];
+			$section_name = $customize[ 'section' ];
+			$setting_name = isset( $setting[ 'name' ] ) ? $setting[ 'name' ] : sanitize_key( $setting[ 'label' ] );
 
 			/**
 			 * Add sections
@@ -165,7 +165,7 @@ class CL_Login_Customizer {
 					$customize[ 'add_section' ][ 'args' ] : array();
 
 				$wp_customize->add_section(
-					self::get_section_id( $name ),
+					self::get_section_id( $section_name ),
 					self::get_wp_customize_section_array( $section_args, $setting[ 'label' ] )
 				);
 			}
@@ -184,31 +184,52 @@ class CL_Login_Customizer {
 					$customize[ 'add_setting' ][ 'args' ] : array();
 
 				$wp_customize->add_setting(
-					self::get_setting_id( $name ),
+					self::get_setting_id( $setting_name ),
 					self::get_wp_customize_setting_array( $setting_args, $default )
 				);
 
 				/**
 				 * Add settings controls
 				 */
-				if ( ( isset( $customize[ 'add_control' ] ) && is_array( $customize[ 'add_control' ] ) ) &&
-				     ( isset( $customize[ 'add_control' ][ 'callback' ] ) && is_string( $customize[ 'add_control' ][ 'callback' ] ) )
-				) {
+				if ( ( isset( $customize[ 'add_control' ] ) && is_array( $customize[ 'add_control' ] ) ) ) {
 
 					// Get the control args array
 					$control_args = isset( $customize[ 'add_control' ][ 'args' ] )
 					                && array() !== $customize[ 'add_control' ][ 'args' ] ?
 						$customize[ 'add_control' ][ 'args' ] : array();
 
-					$control_class = new $customize[ 'add_control' ][ 'callback' ];
+					// Label
+					if ( ! isset( $control_args[ 'label' ] ) ) {
+						$control_args[ 'label' ] = $setting[ 'label' ];
+					}
 
-					$wp_customize->add_control(
-						$control_class(
-							$wp_customize,
-							self::get_control_id( $name ),
-							self::get_wp_customize_control_array( $control_args, $name )
-						)
-					);
+					/**
+					 * Add settings control for custom callback class.
+					 */
+					if ( isset( $customize[ 'add_control' ][ 'callback' ] ) &&
+					     is_string( $customize[ 'add_control' ][ 'callback' ] )
+					) {
+
+						$control_class = $customize[ 'add_control' ][ 'callback' ];
+
+						/**
+						 * Autoload the "$control_class" class...
+						 */
+						if ( class_exists( $control_class, true ) ) {
+							$wp_customize->add_control(
+								new $control_class(
+									$wp_customize,
+									self::get_setting_id( $setting_name ),
+									self::get_wp_customize_control_array( $control_args, $section_name )
+								)
+							);
+						}
+					} else {
+						$wp_customize->add_control(
+							self::get_setting_id( $setting_name ),
+							self::get_wp_customize_control_array( $control_args, $section_name )
+						);
+					}
 				}
 			}
 		}
@@ -218,7 +239,10 @@ class CL_Login_Customizer {
 	 * This will output the Custom Login settings to the login head.
 	 */
 	public function login_head() {
-		CL_Common::render_view( 'login/wp-login' );
+
+		if ( is_customize_preview() ) {
+			CL_Common::render_view( 'login/wp-login' );
+		}
 	}
 
 	/**
@@ -230,7 +254,7 @@ class CL_Login_Customizer {
 		wp_enqueue_script(
 			Custom_Login::DOMAIN . '-customizer',
 			plugins_url( 'js/customizer.js', CUSTOM_LOGIN_FILE ),
-		    array( 'jquery', 'customize-preview' ),
+			array( 'jquery', 'jquery-ui-core', 'jquery-ui-slider' ),
 			CUSTOM_LOGIN_VERSION,
 			true
 		);
@@ -248,8 +272,6 @@ class CL_Login_Customizer {
 	 * This will generate a line of CSS for use in header output. If the setting
 	 * ($mod_name) has no defined value, the CSS will not be output.
 	 *
-	 * @uses get_theme_mod()
-	 *
 	 * @param string $selector CSS selector
 	 * @param string $style The name of the CSS *property* to modify
 	 * @param string $mod_name The name of the 'theme_mod' option to fetch
@@ -262,13 +284,13 @@ class CL_Login_Customizer {
 	public static function generate_css( $selector, $style, $mod_name, $prefix = '', $postfix = '', $echo = true ) {
 
 		$return = '';
-		$mod    = get_theme_mod( $mod_name );
+		$css    = CL_Common::get_option( $mod_name, 'design', '' );
 
-		if ( ! empty( $mod ) ) {
+		if ( ! empty( $css ) ) {
 			$return = sprintf( '%s { %s:%s; }',
 				$selector,
 				$style,
-				$prefix . $mod . $postfix
+				$prefix . $css . $postfix
 			);
 
 			if ( $echo ) {

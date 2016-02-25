@@ -1,16 +1,15 @@
-.pluto-alpha-container .transparency {
+.cl-alpha-container .transparency {
     height:24px;
     width:100%;
     background-color:#FFF;
-    background-image:url(../../images/transparency-grid.png);
-    box-shadow:0 0 5px rgba(0,0,0,0.4) inset;
+    box-shadow:0 0 5px rgba(0,0,0,0.4) inset;)
     -webkit-border-radius: 3px;
     -moz-border-radius: 3px;
     border-radius: 3px;
     padding:0;
 }
 
-.pluto-alpha-container .ui-slider-handle {
+.cl-alpha-container .ui-slider-handle {
     color:#777;
     background-color:#FFF;
     text-shadow:0 1px 0 #FFF;
@@ -30,17 +29,17 @@
     padding:3px;
 }
 
-.pluto-alpha-container .ui-slider {
+.cl-alpha-container .ui-slider {
     position:relative;
     text-align:center;
     width:88%;
 }
 
-.wp-picker-container a.wp-picker-open ~ div.pluto-alpha-container {
+.wp-picker-container a.wp-picker-open ~ div.cl-alpha-container {
     display:block;
 }
 
-.pluto-alpha-container {
+.cl-alpha-container {
     box-sizing:padding-box;
     display:none;
     border:1px solid #dfdfdf;

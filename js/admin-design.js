@@ -53,7 +53,7 @@
          ************************************
          ************************************
          */
-        if ('undefined' !== typeof  cl_settings_api.colorpicker) {
+        if ('undefined' !== typeof cl_settings_api.colorpicker) {
             $.each(cl_settings_api.colorpicker, function (index, value) {
                 $this = value.section + '[' + value.id;
                 $('input[name="' + $this + ']"]').wpColorPicker();
@@ -146,7 +146,7 @@
                         window.formfield.find('input[type="text"]').val(attachment.url);
                         window.formfield.find('#' + value.id + '_preview').html('<div class="img-wrapper" style="width:250px"><img src="' + attachment.url + '" alt="" ><a href="#" class="remove_file_button" rel="' + value.id + '">Remove Image</a></div>');
 
-                        // @since		3.0.1
+                        // @since 3.0.1
                         // @updated	3.0.3
                         if (window.formfield.find('input[type="text"]').attr('id') == 'custom_login_design[logo_background_url]') {
                             window.formfield.parents('table').find('input[name="custom_login_design[logo_background_size_width]"]').val(attachment.width);
@@ -171,69 +171,6 @@
                 });
             });
         }
-
-        if ('undefined' !== typeof ace) {
-
-            	/**
-            	 *** Custom CSS Textarea ************
-            	 */
-            	var custom_css_textarea = $('textarea[id$="custom_css]"]');
-            		custom_css_textarea.parents('tr').find('td').prop('colspan','2');
-            		custom_css_textarea.parents('tr').find('th').remove();
-            	$('<div id="custom_login[custom_css]_ace"/>').insertAfter(custom_css_textarea);
-            	var custom_css = ace.edit("custom_login[custom_css]_ace");
-            	custom_css.setOptions({
-            		maxLines: 30,
-            		autoScrollEditorIntoView: true
-            	});
-            	custom_css.getSession().setMode("ace/mode/css");
-            	custom_css.setTheme("ace/theme/github");
-            	custom_css_textarea.hide();
-            	custom_css.getSession().setValue(custom_css_textarea.val());
-            	custom_css.getSession().on('change', function(){
-            		custom_css_textarea.val(custom_css.getSession().getValue());
-            	});
-
-            	/**
-            	 *** Custom HTML Textarea ***********
-            	 */
-            	var custom_html_textarea = $('textarea[id$="custom_html]"]');
-            		custom_html_textarea.parents('tr').find('td').prop('colspan','2');
-            		custom_html_textarea.parents('tr').find('th').remove();
-            	$('<div id="custom_login[custom_html]_ace"/>').insertAfter(custom_html_textarea);
-            	var custom_html = ace.edit("custom_login[custom_html]_ace");
-            	custom_html.setOptions({
-            		maxLines: 30,
-            		autoScrollEditorIntoView: true
-            	});
-            	custom_html.getSession().setMode("ace/mode/html");
-            	custom_html.setTheme("ace/theme/github");
-            	custom_html_textarea.hide();
-            	custom_html.getSession().setValue(custom_html_textarea.val());
-            	custom_html.getSession().on('change', function(){
-            		custom_html_textarea.val(custom_html.getSession().getValue());
-            	});
-
-            	/**
-            	 *** Custom JS Textarea *************
-            	 */
-            	var custom_js_textarea = $('textarea[id$="custom_jquery]"]');
-            		custom_js_textarea.parents('tr').find('td').prop('colspan','2');
-            		custom_js_textarea.parents('tr').find('th').remove();
-            	$('<div id="custom_login[custom_jquery]_ace"/>').insertAfter(custom_js_textarea);
-            	var custom_js = ace.edit("custom_login[custom_jquery]_ace");
-            	custom_js.setOptions({
-            		maxLines: 30,
-            		autoScrollEditorIntoView: true
-            	});
-            	custom_js.getSession().setMode("ace/mode/javascript");
-            	custom_js.setTheme("ace/theme/github");
-            	custom_js_textarea.hide();
-            	custom_js.getSession().setValue(custom_js_textarea.val());
-            	custom_js.getSession().on('change', function(){
-            		custom_js_textarea.val(custom_js.getSession().getValue());
-            	});
-        } // ace
 
     });
 

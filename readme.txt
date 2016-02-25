@@ -2,13 +2,13 @@
 Contributors: austyfrosty, frostymedia
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=7431290
 Tags: admin, branding, customization, custom login, login, logo, error, login error, custom login pro
-Requires at least: 4.0
-Tested up to: 4.2
+Requires at least: 4.4
+Tested up to: 4.5
 Stable tag: trunk
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Custin Login allows you to easily customize your admin login page, works great for client sites!
+Custom Login allows you to easily customize your admin login page, works great for client sites!
 
 == Description ==
 
@@ -28,7 +28,7 @@ For more information visit the official [Custom Login](https://frosty.media/plug
 
 http://www.youtube.com/watch?v=hZkc-t36xYQ
 
-= Extensions =
+= Extensions aka "plugins that extend Custom Login" =
 
 There are currently 5 premium extensions available, with more coming (suggestions welcome - and *will be offered for free to said user*).
 
@@ -42,7 +42,6 @@ There are currently 5 premium extensions available, with more coming (suggestion
 
 **Extensions in development/extension ideas**
 
-* Email Logins for usernames.
 * 2-step Authentication.
 * "Super User" only access for client sites.
 * **Added in core as of version 3.0** Remove default WordPress login CSS.
@@ -62,7 +61,7 @@ Activate the plugin and customize your WordPress login screen. It's as easy as m
 = links =
 
 * Premium Plugins: [https://frosty.media/plugins](https://frosty.media/plugins/ "Premium WordPress Plugins by Frosty")
-* Austins Blog: [https:/austin.passy.co/](http://austin.passy.co/ "Austin Passy's blog")
+* Austins Blog: [http:/austin.passy.co/](http://austin.passy.co/ "Austin Passy's blog")
 * Austin on Twitter: @[TheFrosty](https:/twitter.com/TheFrosty "Austin TheFrosty' Passy on Twitter")
 * Frosty Media on Twitter: @[Frosty_Media](https:/twitter.com/Frosty_Media "Frosty Media on Twitter")
 * **Development welcomed on [GitHub](https://github.com/thefrosty/custom-login)**
@@ -113,7 +112,15 @@ Custom Login showcase on the [Flickr group](http://flickr.com/groups/custom-logi
 
 4. Custom Login Extensions Installer (an active license key is required).
 
+== Upgrade Notice ==
+
+= 4.0 =
+Complete rewrite of Custom Login, be sure to run the update script to keep your old settings.
+
 == Changelog ==
+
+= Version 4.0 (02/04/16) =
+* [3.x changelog](http://plugins.svn.wordpress.org/custom-login/tags/3.3.2/readme.txt).
 
 = Version 3.2.2 (05/04/15) =
 
@@ -224,14 +231,3 @@ _REQUIRES WordPress 3.9 or later_
 * New: Settings page UI update, now matches your WordPress admin color scheme.
 * New: Extensions installer moved to sparate settings page (hidden).
 * New: Removed version [2.x changelog](http://plugins.svn.wordpress.org/custom-login/tags/2.4/readme.txt).
-
-== Upgrade Notice ==
-
-= 3.2 =
-Celebrate 500,000 downloads w/ a FREE extension! Update to version 3.2 for more info.
-
-= 3.0.6 =
-Fixes unable to login to admin site.
-
-= 3.0.5 =
-Complete rewrite of Custom Login, be sure to run the update script to keep your old settings.

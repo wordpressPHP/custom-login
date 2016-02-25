@@ -11,16 +11,18 @@ $defaults = array(
 
 $args = wp_parse_args( $args, $defaults );
 
-$rss_items = CL_Common::fetch_rss_items( $args[ 'items' ], $args[ 'feed' ] );
+$rss_items   = CL_Common::fetch_rss_items( $args[ 'items' ], $args[ 'feed' ] );
+$description = CL_Common::get_extension_description();
 
-$content = '<ul>';
+$content = $description;
+$content .= '<ul>';
 
 if ( ! $rss_items ) {
 	$content .= '<li>' . __( 'Error fetching feed', Custom_Login_Bootstrap::DOMAIN ) . '</li>';
 } else {
 	foreach ( $rss_items as $item ) {
 
-		if ( !( $item instanceof SimplePie_Item ) ) {
+		if ( ! ( $item instanceof SimplePie_Item ) ) {
 			continue;
 		}
 
@@ -37,7 +39,7 @@ $content .= '</ul>';
 CL_Settings_API::create_postbox( 'custom-login-extensions',
 	sprintf( __( 'Custom Login Extensions %s',
 		Custom_Login_Bootstrap::DOMAIN ),
-		'<span class="dashicons dashicons-external"></span>'
+		'<span class="dashicons dashicons-editor-help" data-toggle=".cl-extensions-desc"></span>'
 	),
 	$content
 );

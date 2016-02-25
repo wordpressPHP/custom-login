@@ -1,0 +1,25 @@
+#cl-admin-dashboard .postbox .inside {
+    margin-bottom: 0;
+}
+#cl-admin-dashboard .inside {
+    margin: 0;
+    padding: 0;
+}
+#cl-admin-dashboard .rss-widget {
+    border-bottom: 1px solid #eee;
+    font-size: 13px;
+    padding: 8px 12px 10px;
+}
+
+#cl-admin-dashboard .rss-widget:last-child {
+    border-bottom: medium none;
+    padding-bottom: 8px;
+}
+
+.cl-extensions-desc {
+    display: none;
+}
+
+[data-toggle] {
+    cursor: pointer;
+}

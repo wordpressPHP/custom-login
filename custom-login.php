@@ -10,8 +10,7 @@
  * @wordpress-plugin
  * Plugin Name: Custom Login
  * Plugin URI: https://frosty.media/plugins/custom-login
- * Description: A simple way to customize your WordPress <code>wp-login.php</code> screen!
- * A <a href="https://frosty.media/">Frosty Media</a> plugin.
+ * Description: A simple way to customize your WordPress <code>/wp-login.php</code> screen! A <a href="https://frosty.media/?ref=wp-admin/plugins.php">Frosty Media</a> plugin.
  * Version: 4.0.0
  * Author: Austin Passy
  * Author URI: http://austin.passy.co
@@ -24,6 +23,9 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  */
 
+// Exit if accessed directly
+defined( 'ABSPATH' ) || exit;
+
 if ( ! class_exists( 'Custom_Login_Bootstrap' ) ) {
 
 	/**
@@ -35,7 +37,7 @@ if ( ! class_exists( 'Custom_Login_Bootstrap' ) ) {
 		 * Current version number
 		 * @var string
 		 */
-		const VERSION = '4.0.0';
+		const VERSION = '4.0';
 
 		/**
 		 * Plugin text domain
@@ -169,11 +171,7 @@ if ( ! class_exists( 'Custom_Login_Bootstrap' ) ) {
 		 */
 		protected function autoload_classes( $class_name ) {
 
-			if ( false !== strpos( $class_name, 'CL_' ) &&
-			     false !== strpos( $class_name, 'CL_Admin_' ) &&
-			     false !== strpos( $class_name, 'CL_Customize_' ) &&
-			     false !== strpos( $class_name, 'Custom_Login_' )
-			) {
+			if ( false !== strpos( $class_name, 'CL_' ) && false !== strpos( $class_name, 'Custom_Login_' ) ) {
 				return;
 			}
 

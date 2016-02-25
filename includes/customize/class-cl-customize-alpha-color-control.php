@@ -1,9 +1,7 @@
 <?php
 
 // Exit if accessed directly
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
-}
+defined( 'ABSPATH' ) || exit;
 
 /**
  * Class CL_Customize_Alpha_Color_Control
@@ -37,4 +35,5 @@ class CL_Customize_Alpha_Color_Control extends WP_Customize_Color_Control {
 		</label>
 		<?php
 	}
+
 }

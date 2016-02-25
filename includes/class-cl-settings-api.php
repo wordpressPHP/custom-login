@@ -1,5 +1,8 @@
 <?php
 
+// Exit if accessed directly
+defined( 'ABSPATH' ) || exit;
+
 use Custom_Login_Bootstrap as Custom_Login;
 
 /**
@@ -25,6 +28,7 @@ class CL_Settings_API {
 	var $settings_sections = array();
 	var $settings_fields = array();
 	var $settings_sidebars = array();
+	var $scripts_array = array();
 	var $localize_array = array();
 
 	/** Singleton *************************************************************/
@@ -56,7 +60,8 @@ class CL_Settings_API {
 	public function add_hooks() {
 
 		add_action( 'admin_menu', array( $this, 'admin_menu' ) );
-		add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_scripts' ) );
+		add_action( 'admin_enqueue_scripts', array( $this, 'register_admin_scripts' ) );
+		add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_scripts' ), 11 );
 	}
 
 	/**
@@ -73,7 +78,7 @@ class CL_Settings_API {
 		);
 
 		add_action( 'load-' . self::$menu_page, array( $this, 'load_cl_admin' ), 89 );
-		add_action( Custom_Login::DOMAIN . ' _admin_enqueue_scripts', array( $this, 'wp_localize_script' ), 99 );
+		add_action( Custom_Login::DOMAIN . ' _admin_enqueue_scripts', array( $this, 'admin_print_footer_scripts' ), 99 );
 	}
 
 	/**
@@ -97,42 +102,98 @@ class CL_Settings_API {
 	}
 
 	/**
-	 * Enqueue admin scripts and styles
+	 * Register admin scripts and styles
+	 */
+	public function register_admin_scripts() {
+
+		wp_register_script( Custom_Login::DOMAIN, plugins_url( 'js/admin.js', CUSTOM_LOGIN_FILE ),
+			array( 'jquery' ), CUSTOM_LOGIN_VERSION, true );
+
+		wp_register_script( 'wp-color-picker-alpha', plugins_url( 'js/wp-color-picker-alpha.js', CUSTOM_LOGIN_FILE ),
+			array( 'wp-color-picker' ), '1.2.1', true );
+
+		wp_register_script( 'codemirror', plugins_url( 'js/codemirror.js', CUSTOM_LOGIN_FILE ),
+			array(), CUSTOM_LOGIN_VERSION, true );
+
+		wp_register_style( Custom_Login::DOMAIN, plugins_url( 'css/admin.css', CUSTOM_LOGIN_FILE ), false,
+			CUSTOM_LOGIN_VERSION, 'screen' );
+
+		wp_register_style( 'bulma-framework', plugins_url( 'css/bulma.css', CUSTOM_LOGIN_FILE ), false,
+			'0.0.12', 'screen' );
+
+		wp_register_style( 'codemirror', plugins_url( 'css/codemirror.css', CUSTOM_LOGIN_FILE ), false,
+			'5.12.0', 'screen' );
+	}
+
+	/**
+	 * Enqueue admin scripts and styles when on the Custom Login settings page.
 	 *
 	 * @param string $hook
 	 */
 	public function admin_enqueue_scripts( $hook ) {
 
+		/**
+		 * Only continue if we're on out settings page.
+		 */
 		if ( 'settings_page_' . Custom_Login::DOMAIN !== $hook ) {
 			return;
 		}
 
 		/* Core */
 		wp_enqueue_media();
-		wp_enqueue_script( array( 'wp-color-picker', 'plugin-install' ) );
+		wp_enqueue_script( array( 'plugin-install' ) );
 		wp_enqueue_style( array( 'wp-color-picker', 'thickbox', 'plugin-install' ) );
 
 		/* jQuery Sticky */
 		wp_enqueue_script( 'sticky', plugins_url( 'js/jquery.sticky.js', CUSTOM_LOGIN_FILE ), array( 'jquery' ), '1.0.0', true );
 
-		/* Ace */
-		wp_enqueue_script( 'ace', plugins_url( 'js/ace/src-min-noconflict/ace.js', CUSTOM_LOGIN_FILE ), null, '20.12.14', true );
-
 		/* Dashicons */
 		wp_enqueue_style( 'dashicons' );
 
-		/* Admin */
-		wp_enqueue_script( Custom_Login::DOMAIN, plugins_url( 'js/admin.js', CUSTOM_LOGIN_FILE ), array(
-			'jquery',
-		), CUSTOM_LOGIN_VERSION, true );
-		wp_enqueue_style( Custom_Login::DOMAIN, plugins_url( 'css/admin.css', CUSTOM_LOGIN_FILE ), false, CUSTOM_LOGIN_VERSION, 'screen' );
-		wp_enqueue_style( 'bulma-framework', plugins_url( 'css/bulma.css', CUSTOM_LOGIN_FILE ), false, '0.0.12', 'screen' );
+		/* Custom Login */
+		wp_enqueue_script( array( Custom_Login::DOMAIN, 'codemirror' ) );
+		wp_enqueue_style( array( Custom_Login::DOMAIN, 'codemirror', 'bulma-framework' ) );
 
 		do_action( Custom_Login::DOMAIN . ' _admin_enqueue_scripts' );
 	}
 
 	/**
+	 * This method is called in the custom action 'custom-login_admin_enqueue_scripts' and insures that
+	 * these action hooks to 'admin_print_footer_scripts' are only called on our setting spage.
+	 */
+	public function admin_print_footer_scripts() {
+
+		add_action( 'admin_print_footer_scripts', array( $this, 'enqueue_field_type_scripts' ), 89 );
+		add_action( 'admin_print_footer_scripts', array( $this, 'wp_localize_script' ), 99 );
+	}
+
+	/**
+	 * Enqueue field type dependant scripts if they are registered.
+	 *
+	 * @uses wp_script_is
+	 * @uses wp_print_scripts Since this method is called in 'admin_print_footer_scripts' we have to print the
+	 *                          script and not enqueue it.
+	 */
+	public function enqueue_field_type_scripts() {
+
+		if ( !empty( $this->scripts_array ) ) {
+			foreach( array_unique( $this->scripts_array ) as $script ) {
+
+				if ( wp_style_is( $script, 'registered' ) ) {
+					wp_print_styles( $script );
+				}
+
+				if ( wp_script_is( $script, 'registered' ) ) {
+					wp_print_scripts( $script );
+				}
+			}
+		}
+	}
+
+	/**
 	 * Localize our script array.
+	 *
+	 * @uses wp_localize_script
 	 */
 	public function wp_localize_script() {
 
@@ -226,6 +287,18 @@ class CL_Settings_API {
 	}
 
 	/**
+	 * Add to the script array variable.
+	 *
+	 * @param mixed $value The array value
+	 */
+	public function add_scripts_array( $value ) {
+
+		if ( !in_array( $value, $this->scripts_array ) ) {
+			$this->scripts_array[] = $value;
+		}
+	}
+
+	/**
 	 * Show navigation as lists
 	 *
 	 * Shows all the settings section labels as list items
@@ -283,7 +356,7 @@ class CL_Settings_API {
 	}
 
 	/**
-	 * CL_Dependency_Check constructor.
+	 * Add an admin notice if there is an upgrade that needs the users attention.
 	 *
 	 * @throws Exception
 	 */

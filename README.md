@@ -6,9 +6,15 @@
 **Tested up to:** 4.1  
 **Stable tag:** trunk  
 **License:** GPLv2 or later  
-**License URI:** http://www.gnu.org/licenses/gpl-2.0.html  
+**License URI:** http://www.gnu.org/licenses/gpl-2.0.html
 
-Custin Login allows you to easily customize your admin login page, works great for client sites!
+[![Wordpress plugin](http://img.shields.io/wordpress/plugin/v/custom-login.svg)](https://wordpress.org/plugins/custom-login/)
+[![Wordpress](http://img.shields.io/wordpress/plugin/dt/custom-login.svg)](https://wordpress.org/plugins/custom-login/)
+[![Wordpress rating](http://img.shields.io/wordpress/plugin/r/custom-login.svg)](https://wordpress.org/plugins/custom-login/)
+[![Build Status](https://api.travis-ci.org/thefrosty/custom-login.svg?branch=dev)](https://travis-ci.org/thefrosty/custom-login)
+
+
+Custom Login allows you to easily customize your admin login page, works great for client sites!
 
 ## Description ##
 

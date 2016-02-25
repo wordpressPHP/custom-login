@@ -65,7 +65,9 @@
             return '#' + hex;
         };
 
-        $('.pluto-color-control').each(function () {
+        var alphacolor = $('input.cl-alpha-color-control');
+
+        alphacolor.each(function () {
             var $control = $(this),
                 value = $control.val().replace(/\s+/g, '');
             // Manage Palettes
@@ -98,7 +100,7 @@
                 palettes: palette // remove the color palettes
             });
 
-            $('<div class="pluto-alpha-container"><div class="slider-alpha"></div><div class="transparency"></div></div>')
+            $('<div class="cl-alpha-container"><div class="slider-alpha"></div><div class="transparency"></div></div>')
                 .appendTo($control.parents('.wp-picker-container'));
 
             var $alpha_slider = $control.parents('.wp-picker-container:first').find('.slider-alpha'),

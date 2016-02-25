@@ -1,36 +1,40 @@
 <?php
 
+// Exit if accessed directly
+defined( 'ABSPATH' ) || exit;
+
 /**
  * Class CL_Admin_Notices
  */
 class CL_Admin_Notices {
 
-	public static $exception = null;
+	public static $exception;
 
 	/**
 	 * @var string
 	 */
-	const ERROR_CODE = '|error';
-	const UPDATED_CODE = '|updated';
-	const NOTICE_CODE = '|update-nag';
+	const ERROR_CODE = '~notice-error';
+	const SUCCESS_CODE = '~notice-success';
+	const NOTICE_CODE = '~notice-warning';
 
 	/**
-	 * Notices constructor.
+	 * CL_Admin_Notices constructor.
+	 *      If $e is an instance of \Exception call our view method.
 	 *
 	 * @param null|Exception $e
 	 */
 	public function __construct( $e = null ) {
 
-		if ( $e instanceof Exception ) {
+		if ( ! is_null( $e ) && $e instanceof Exception ) {
 			self::$exception = $e;
-			add_action( 'admin_notices', array( $this, 'admin_notices' ) );
+			$this->render_view();
 		}
 	}
 
 	/**
-	 *
+	 * The HTML view of the notices.
 	 */
-	public function admin_notices() {
-		include CUSTOM_LOGIN_DIR . "/views/notices/notice.php";
+	private function render_view() {
+		include CUSTOM_LOGIN_DIR . "views/notices/notice.php";
 	}
 }

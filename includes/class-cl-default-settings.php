@@ -1,5 +1,8 @@
 <?php
 
+// Exit if accessed directly
+defined( 'ABSPATH' ) || exit;
+
 /**
  * Class CL_Default_Settings
  */
@@ -23,7 +26,10 @@ class CL_Default_Settings {
 	 * Add class hooks.
 	 */
 	public function add_hooks() {
+
 		add_action( 'admin_init', array( $this, 'admin_init' ) );
+		add_action( 'pre_update_option_' . CL_Settings_API::SETTING_ID, array( $this, 'combine_settings_array' ), 10, 2 );
+		add_action( 'update_option_' . CL_Settings_API::SETTING_ID, array( $this, 'delete_transients' ) );
 	}
 
 	/**
@@ -60,16 +66,19 @@ class CL_Default_Settings {
 				$name = isset( $option[ 'name' ] ) ? $option[ 'name' ] : strtolower( $option[ 'label' ] );
 
 				$args = array(
-					'id'       => $name,
-					'desc'     => ! empty( $option[ 'desc' ] ) ? $option[ 'desc' ] : '',
-					'name'     => $option[ 'label' ],
-					'section'  => CL_Settings_API::SETTING_ID . '[' . $section_id . ']',
-					'size'     => isset( $option[ 'size' ] ) ? $option[ 'size' ] : null,
-					'options'  => isset( $option[ 'options' ] ) ? $option[ 'options' ] : array(),
-					'default'  => isset( $option[ 'default' ] ) ? $option[ 'default' ] : '',
-					'sanitize' => isset( $option[ 'sanitize' ] ) && ! empty( $option[ 'sanitize' ] ) ? $option[ 'sanitize' ] : '',
-					'callback' => isset( $option[ 'class' ] ) ? $option[ 'class' ] : ( new CL_Admin_Field_Types( $this->cl_settings_api ) ),
+					'id'          => $name,
+					'desc'        => ! empty( $option[ 'desc' ] ) ? $option[ 'desc' ] : '',
+					'name'        => $option[ 'label' ],
+					'section'     => CL_Settings_API::SETTING_ID . '[' . $section_id . ']',
+					'size'        => isset( $option[ 'size' ] ) ? $option[ 'size' ] : null,
+					'options'     => isset( $option[ 'options' ] ) ? $option[ 'options' ] : array(),
+					'default'     => isset( $option[ 'default' ] ) ? $option[ 'default' ] : '',
+					'sanitize_cb' => isset( $option[ 'sanitize_cb' ] ) && ! empty( $option[ 'sanitize_cb' ] ) ?
+						$option[ 'sanitize_cb' ] : '',
+					'callback'    => isset( $option[ 'class' ] ) ?
+						$option[ 'class' ] : ( new CL_Admin_Field_Types( $this->cl_settings_api ) ),
 				);
+
 				$args = wp_parse_args( $args, $option );
 
 				add_settings_field(
@@ -97,7 +106,7 @@ class CL_Default_Settings {
 	 *
 	 * @return array
 	 */
-	function sanitize_options( $options ) {
+	public function sanitize_options( $options ) {
 
 		if ( is_null( $options ) || ! is_array( $options ) ) {
 			return $options;
@@ -135,7 +144,7 @@ class CL_Default_Settings {
 	 *
 	 * @return mixed object on success or false on failure.
 	 */
-	function get_sanitize_callback( $slug = '' ) {
+	protected function get_sanitize_callback( $slug = '' ) {
 
 		if ( empty( $slug ) ) {
 			return false;
@@ -149,11 +158,34 @@ class CL_Default_Settings {
 				}
 
 				// Return the callback name
-				return isset( $option[ 'sanitize' ] ) && is_callable( $option[ 'sanitize' ] ) ? $option[ 'sanitize' ] : false;
+				return isset( $option[ 'sanitize_cb' ] ) && is_callable( $option[ 'sanitize_cb' ] ) ?
+					$option[ 'sanitize_cb' ] :
+					false;
 			}
 		}
 
 		return false;
+	}
+
+	/**
+	 * This method combines our settings array into one multi-dimensional array.
+	 *
+	 * @param mixed  $value     The new, un-serialized option value.
+	 * @param mixed  $old_value The old option value.
+	 *
+	 * @return array
+	 */
+	public function combine_settings_array( $value, $old_value ) {
+		return array_replace( $old_value, $value );
+	}
+
+	/**
+	 * Delete our transients on settings save.
+	 */
+	public function delete_transients() {
+
+		delete_transient( CL_Common::get_transient_key( 'style' ) );
+		delete_transient( CL_Common::get_transient_key( 'script' ) );
 	}
 
 	/**
@@ -205,26 +237,28 @@ class CL_Default_Settings {
 			array(
 				'name'  => 'use_customizer',
 				'label' => __( 'Customizer', 'custom-login' ),
-				'desc'  => __( 'Use the design customizer?', 'custom-login' ),
+				'desc'  => __( 'Use WordPress&lsquo; Appearance Customizer?', 'custom-login' ),
 				'type'  => 'checkbox',
 			),
 			array(
 				'name'    => 'capability',
 				'label'   => __( 'Capability', 'custom-login' ),
-				'desc'    => sprintf( __( 'Set the minimum capability a user needs to manage the Custom Login settings. The default capability is <code>%s</code>', 'custom-login' ), 'manage_options' ),
+				'desc'    => __( 'The minimum capability a registered user needs to manage all Custom Login settings.', 'custom-login' ),
 				'type'    => 'select',
 				'size'    => 'large',
 				'default' => 'manage_options',
 				'options' => CL_Common::get_editable_roles(),
 			),
 
-			/** BREAK **/
+			/**
+			 * Section Login
+			 */
 			array(
+				'name'  => '_section_login_functions',
 				'label' => __( 'Login functions', 'custom-login' ),
 				'desc'  => '',
 				'type'  => 'html_break',
 			),
-			/** BREAK **/
 
 			array(
 				'name'  => 'wp_shake_js',
@@ -245,13 +279,15 @@ class CL_Default_Settings {
 				'type'  => 'checkbox',
 			),
 
-			/** BREAK **/
+			/**
+			 * Section Tracking
+			 */
 			array(
+				'name'  => '_section_tracking',
 				'label' => __( 'Tracking', 'custom-login' ),
 				'desc'  => '',
 				'type'  => 'html_break',
 			),
-			/** BREAK **/
 
 			array(
 				'name'  => 'tracking',
@@ -261,13 +297,15 @@ class CL_Default_Settings {
 				'type'  => 'checkbox',
 			),
 
-			/** BREAK **/
+			/**
+			 * Section Notices
+			 */
 			array(
+				'name'  => '_section_notices',
 				'label' => __( 'Notices', 'custom-login' ),
 				'desc'  => '',
 				'type'  => 'html_break',
 			),
-			/** BREAK **/
 
 			array(
 				'name'  => 'admin_notices',
@@ -281,425 +319,626 @@ class CL_Default_Settings {
 				'desc'  => __( 'Show a dashboard widget, like WordPress news for Frosty Media.', 'custom-login' ),
 				'type'  => 'checkbox',
 			),
+
+			/**
+			 * Section Import/Export
+			 */
+			array(
+				'name'  => '_section_misc',
+				'label' => __( 'Miscellaneous', 'custom-login' ),
+				'desc'  => '',
+				'type'  => 'html_break',
+			),
+			array(
+				'name'  => 'import_export',
+				'label' => __( 'Import/Export', 'custom-login' ),
+				'desc'  => __( 'Allow the import and export feature.', 'custom-login' ),
+				'type'  => 'checkbox',
+			)
 		);
 
 		/**
 		 * Design Settings Section
 		 */
 		$fields[ 'design' ] = array(
-			/** BREAK **/
+
+			/**
+			 * Section HTML
+			 */
 			array(
+				'name'      => '_section_html',
 				'label'     => __( 'HTML', 'custom-login' ),
 				'desc'      => '',
 				'type'      => 'html_break',
 				'customize' => array(
+					'section'     => 'html',
 					'add_section' => true,
 				),
 			),
-			/** BREAK **/
 
 			array(
-				'name'    => 'html_background_color',
-				'label'   => __( 'Background color', 'custom-login' ),
-				'desc'    => '',
-				'type'    => 'colorpicker',
-				'default' => '#f1f1f1',
-				'customize' => array(
-					'add_setting' => array(
-					),
+				'name'       => 'html_background_color',
+				'label'      => __( 'Background color', 'custom-login' ),
+				'desc'       => '',
+				'type'       => 'alphacolor',
+				'default'    => '#f1f1f1',
+				'attributes' => array(
+					'data-alpha' => 'true',
+				),
+				'customize'  => array(
+					'section'     => 'html',
+					'add_setting' => array(),
 					'add_control' => array(
-						'callback' => 'CL_Customize_Color_Alpha_Control',
-						'args' => array(
+						'callback' => 'CL_Customize_Alpha_Color_Control',
+						'args'     => array(
+							'type'    => 'alphacolor',
 							'palette' => true,
-						)
+						),
 					),
 				),
 			),
-//			array(
-//				'name'     => 'html_background_url',
-//				'label'    => __( 'Background image', 'custom-login' ),
-//				'desc'     => '',
-//				'type'     => 'file',
-//				'default'  => '',
-//				'size'     => 'large',
-//				'sanitize' => 'esc_url',
-//			),
-//			array(
-//				'name'    => 'html_background_position',
-//				'label'   => __( 'Background position', 'custom-login' ),
-//				'desc'    => sprintf( '<a href="http://www.w3schools.com/cssref/pr_background-position.asp" target="_blank">%s</a>.', __( 'html background position', 'custom-login' ) ),
-//				'type'    => 'select',
-//				'options' => array(
-//					'left top'      => 'left top',
-//					'left center'   => 'left center',
-//					'left bottom'   => 'left bottom',
-//					'right top'     => 'right top',
-//					'right center'  => 'right center',
-//					'right bottom'  => 'right bottom',
-//					'center top'    => 'center top',
-//					'center center' => 'center center',
-//					'center bottom' => 'center bottom',
-//				),
-//			),
-//			array(
-//				'name'    => 'html_background_repeat',
-//				'label'   => __( 'Background repeat', 'custom-login' ),
-//				'desc'    => '',
-//				'type'    => 'select',
-//				'options' => array(
-//					'no-repeat' => 'no-repeat',
-//					'repeat'    => 'repeat',
-//					'repeat-x'  => 'repeat-x',
-//					'repeat-y'  => 'repeat-y',
-//				),
-//			),
-//			array(
-//				'name'    => 'html_background_size',
-//				'label'   => __( 'Background size', 'custom-login' ),
-//				'desc'    => '',
-//				'type'    => 'select',
-//				'options' => array(
-//					'none'    => 'none',
-//					'cover'   => 'cover',
-//					'contain' => 'contain',
-//					'flex'    => 'flex',
-//				),
-//			),
-//
-//			/** BREAK **/
-//			array(
-//				'label' => __( 'Logo', 'custom-login' ),
-//				'desc'  => '',
-//				'type'  => 'html_break',
-//				'customize' => array(
-//					'add_section' => true,
-//				),
-//			),
-//			/** BREAK **/
-//
-//			array(
-//				'name'  => 'hide_wp_logo',
-//				'label' => __( 'Hide the WP logo', 'custom-login' ),
-//				'desc'  => __( 'This setting hides the h1 element.', 'custom-login' ),
-//				'type'  => 'checkbox',
-//			),
-//			array(
-//				'name'     => 'logo_background_url',
-//				'label'    => __( 'Image', 'custom-login' ),
-//				'desc'     => __( 'I would suggest a max width of 320px, the default form width. You can widen the width (setting below).', 'custom-login' ),
-//				'type'     => 'file',
-//				'default'  => '',
-//				'size'     => 'large',
-//				'sanitize' => 'esc_url',
-//			),
-//			array(
-//				'name'     => 'logo_background_size_width',
-//				'label'    => __( 'Image width', 'custom-login' ),
-//				'desc'     => __( 'Enter your desired image height (All not integers will be removed).', 'custom-login' ),
-//				'type'     => 'text_number',
-//				'size'     => 'small',
-//				'default'  => '',
-//				'sanitize' => 'int',
-//			),
-//			array(
-//				'name'     => 'logo_background_size_height',
-//				'label'    => __( 'Image height', 'custom-login' ),
-//				'desc'     => __( 'Enter your desired image height (All not integers will be removed).', 'custom-login' ),
-//				'type'     => 'text_number',
-//				'size'     => 'small',
-//				'default'  => '',
-//				'sanitize' => 'int',
-//			),
-//			array(
-//				'name'    => 'logo_background_position',
-//				'label'   => __( 'Background position', 'custom-login' ),
-//				'desc'    => sprintf( '<a href="http://www.w3schools.com/cssref/pr_background-position.asp" target="_blank">%s</a>', __( 'html background position', 'custom-login' ) ),
-//				'type'    => 'select',
-//				'options' => array(
-//					'left top'      => 'left top',
-//					'left center'   => 'left center',
-//					'left bottom'   => 'left bottom',
-//					'right top'     => 'right top',
-//					'right center'  => 'right center',
-//					'right bottom'  => 'right bottom',
-//					'center top'    => 'center top',
-//					'center center' => 'center center',
-//					'center bottom' => 'center bottom',
-//				),
-//			),
-//			array(
-//				'name'    => 'logo_background_repeat',
-//				'label'   => __( 'Background repeat', 'custom-login' ),
-//				'desc'    => '',
-//				'type'    => 'select',
-//				'options' => array(
-//					'no-repeat' => 'no-repeat',
-//					'repeat'    => 'repeat',
-//					'repeat-x'  => 'repeat-x',
-//					'repeat-y'  => 'repeat-y',
-//				),
-//			),
-//			array(
-//				'name'    => 'logo_background_size',
-//				'label'   => __( 'Background size', 'custom-login' ),
-//				'desc'    => '',
-//				'type'    => 'select',
-//				'options' => array(
-//					'none'    => 'none',
-//					'cover'   => 'cover',
-//					'contain' => 'contain',
-//					'flex'    => 'flex',
-//				),
-//			),
-//
-//			/** BREAK **/
-//			array(
-//				'label' => __( 'Login Form', 'custom-login' ),
-//				'desc'  => '',
-//				'type'  => 'html_break',
-//				'customize' => array(
-//					'add_section' => true,
-//				),
-//			),
-//			/** BREAK **/
-//
-//			array(
-//				'name'  => 'logo_force_form_max_width',
-//				'label' => __( 'Force max-width', 'custom-login' ),
-//				'desc'  => __( 'If checked and the login form width (set below) is not empty, a CSS rule of <code>width</code> will be applied on the logo wrapper element <code>.login h1</code>. This settings applies to the Logo image (when background size is used).', 'custom-login' ),
-//				'type'  => 'checkbox',
-//			),
-//			array(
-//				'name'     => 'login_form_width',
-//				'label'    => __( 'Width', 'custom-login' ),
-//				'desc'     => __( 'Change the default width of the login form.', 'custom-login' ),
-//				'type'     => 'text_number',
-//				'size'     => 'small',
-//				'default'  => '320',
-//				'sanitize' => 'int',
-//			),
-//			array(
-//				'name'    => 'login_form_background_color',
-//				'label'   => __( 'Background color', 'custom-login' ),
-//				'desc'    => '',
-//				'type'    => 'colorpicker',
-//				'default' => '',
-//			),
-//			array(
-//				'name'     => 'login_form_background_url',
-//				'label'    => __( 'Background URL', 'custom-login' ),
-//				'desc'     => __( 'Add a background image to the login form.', 'custom-login' ),
-//				'type'     => 'file',
-//				'default'  => '',
-//				'size'     => 'large',
-//				'sanitize' => 'esc_url',
-//			),
-//			array(
-//				'name'    => 'login_form_background_position',
-//				'label'   => __( 'Background position', 'custom-login' ),
-//				'desc'    => sprintf( '<a href="http://www.w3schools.com/cssref/pr_background-position.asp" target="_blank">%s</a>', __( 'html background position', 'custom-login' ) ),
-//				'type'    => 'select',
-//				'options' => array(
-//					'left top'      => 'left top',
-//					'left center'   => 'left center',
-//					'left bottom'   => 'left bottom',
-//					'right top'     => 'right top',
-//					'right center'  => 'right center',
-//					'right bottom'  => 'right bottom',
-//					'center top'    => 'center top',
-//					'center center' => 'center center',
-//					'center bottom' => 'center bottom',
-//				),
-//			),
-//			array(
-//				'name'    => 'login_form_background_repeat',
-//				'label'   => __( 'Background repeat', 'custom-login' ),
-//				'desc'    => '',
-//				'type'    => 'select',
-//				'options' => array(
-//					'no-repeat' => 'no-repeat',
-//					'repeat'    => 'repeat',
-//					'repeat-x'  => 'repeat-x',
-//					'repeat-y'  => 'repeat-y',
-//				),
-//			),
-//			array(
-//				'name'    => 'login_form_background_size',
-//				'label'   => __( 'Background size', 'custom-login' ),
-//				'desc'    => '',
-//				'type'    => 'select',
-//				'options' => array(
-//					'none'    => 'none',
-//					'cover'   => 'cover',
-//					'contain' => 'contain',
-//					'flex'    => 'flex',
-//				),
-//			),
-//			array(
-//				'name'     => 'login_form_border_radius',
-//				'label'    => __( 'Border radius', 'custom-login' ),
-//				'desc'     => '',
-//				'type'     => 'text_number',
-//				'size'     => 'small',
-//				'default'  => '',
-//				'sanitize' => 'int',
-//			),
-//			array(
-//				'name'     => 'login_form_border_size',
-//				'label'    => __( 'Border size', 'custom-login' ),
-//				'desc'     => '',
-//				'type'     => 'text_number',
-//				'size'     => 'small',
-//				'default'  => '',
-//				'sanitize' => 'int',
-//			),
-//			array(
-//				'name'    => 'login_form_border_color',
-//				'label'   => __( 'Border color', 'custom-login' ),
-//				'desc'    => '',
-//				'type'    => 'colorpicker',
-//				'default' => '',
-//			),
-//			array(
-//				'name'    => 'login_form_box_shadow',
-//				'label'   => __( 'Box shadow', 'custom-login' ),
-//				'desc'    => sprintf( __( 'Use <a href="%s" target="_blank">box shadow</a> syntax w/ out color. <code>inset h-shadow v-shadow blur spread</code>', 'custom-login' ), 'http://www.w3schools.com/cssref/css3_pr_box-shadow.asp' ),
-//				'type'    => 'text',
-//				'size'    => 'medium',
-//				'default' => '5px 5px 10px',
-//			),
-//			array(
-//				'name'    => 'login_form_box_shadow_color',
-//				'label'   => __( 'Box shadow color', 'custom-login' ),
-//				'desc'    => '',
-//				'type'    => 'colorpicker',
-//				'default' => '',
-//			),
-//
-//			/** BREAK **/
-//			array(
-//				'label' => __( 'Miscellaneous', 'custom-login' ),
-//				'desc'  => '',
-//				'type'  => 'html_break',
-//				'customize' => array(
-//					'add_section' => true,
-//				),
-//			),
-//			/** BREAK **/
-//
-//			array(
-//				'name'    => 'label_color',
-//				'label'   => __( 'Label color', 'custom-login' ),
-//				'desc'    => '',
-//				'type'    => 'colorpicker',
-//				'default' => '',
-//			),
-//
-//			/** BREAK **/
-//			array(
-//				'label' => __( 'Below Form anchor', 'custom-login' ),
-//				'desc'  => '',
-//				'type'  => 'html_break',
-//				'customize' => array(
-//					'add_section' => true,
-//				),
-//			),
-//			/** BREAK **/
-//
-//			array(
-//				'name'    => 'nav_color',
-//				'label'   => __( 'Nav color', 'custom-login' ),
-//				'desc'    => '',
-//				'type'    => 'colorpicker',
-//				'default' => '',
-//			),
-//			array(
-//				'name'    => 'nav_text_shadow_color',
-//				'label'   => __( 'Nav text-shadow color', 'custom-login' ),
-//				'desc'    => '',
-//				'type'    => 'colorpicker',
-//				'default' => '',
-//			),
-//			array(
-//				'name'    => 'nav_hover_color',
-//				'label'   => __( 'Nav color hover', 'custom-login' ),
-//				'desc'    => '',
-//				'type'    => 'colorpicker',
-//				'default' => '',
-//			),
-//			array(
-//				'name'    => 'nav_text_shadow_hover_color',
-//				'label'   => __( 'Nav text-shadow hover', 'custom-login' ),
-//				'desc'    => '',
-//				'type'    => 'colorpicker',
-//				'default' => '',
-//			),
-//
-//			/** BREAK **/
-//			array(
-//				'label' => __( 'Custom CSS', 'custom-login' ),
-//				'desc'  => '',
-//				'type'  => 'html_break',
-//				'customize' => array(
-//					'add_section' => true,
-//				),
-//			),
-//			/** BREAK **/
-//
-//			array(
-//				'name'     => 'custom_css',
-//				'label'    => '',
-//				'desc'     => sprintf( '%s %s', __( 'Allowed variables:', 'custom-login' ), '<ul>
-//			<li>{BSLASH} = "\" (backslash)</li>
-//			<li><a href="http://wordpress.org/support/topic/quotes-in-custom-css-gets-replaced-with-useless-quote?replies=4">Request others</a></li>
-//			</ul>' ),
-//				'type'     => 'textarea',
-//				'sanitize' => 'wp_filter_nohtml_kses',
-//			),
-//			array(
-//				'name'  => 'animate.css',
-//				'label' => __( 'Animate', 'custom-login' ),
-//				'desc'  => __( 'Include <a href="http://daneden.github.io/animate.css/">animate.css</a>?', 'custom-login' ),
-//				'type'  => 'checkbox',
-//			),
-//
-//			/** BREAK **/
-//			array(
-//				'label' => __( 'Custom HTML', 'custom-login' ),
-//				'desc'  => '',
-//				'type'  => 'html_break',
-//				'customize' => array(
-//					'add_section' => true,
-//				),
-//			),
-//			/** BREAK **/
-//
-//			array(
-//				'name'     => 'custom_html',
-//				'label'    => '',
-//				'desc'     => '',
-//				'type'     => 'textarea',
-//				'sanitize' => 'wp_kses_post', //Allow HTML
-//			),
-//
-//			/** BREAK **/
-//			array(
-//				'label' => __( 'Custom jQuery', 'custom-login' ),
-//				'desc'  => '',
-//				'type'  => 'html_break',
-//				'customize' => array(
-//					'add_section' => true,
-//				),
-//			),
-//			/** BREAK **/
-//
-//			array(
-//				'name'     => 'custom_jquery',
-//				'label'    => '',
-//				'desc'     => '',
-//				'type'     => 'textarea',
-//				'sanitize' => 'wp_specialchars_decode',
-//			),
+			array(
+				'name'        => 'html_background_url',
+				'label'       => __( 'Background image', 'custom-login' ),
+				'desc'        => '',
+				'type'        => 'file',
+				'default'     => '',
+				'size'        => 'large',
+				'sanitize_cb' => 'esc_url',
+				'customize'   => array(
+					'section'     => 'html',
+					'add_setting' => array(),
+					'add_control' => array(
+						'callback' => 'WP_Customize_Image_Control',
+						'args'     => array(),
+					),
+				),
+			),
+			array(
+				'name'    => 'html_background_position',
+				'label'   => __( 'Background position', 'custom-login' ),
+				'desc'    => sprintf( '<a href="http://www.w3schools.com/cssref/pr_background-position.asp" target="_blank">%s</a>.', __( 'html background position', 'custom-login' ) ),
+				'type'    => 'select',
+				'options' => array(
+					'left top'      => 'left top',
+					'left center'   => 'left center',
+					'left bottom'   => 'left bottom',
+					'right top'     => 'right top',
+					'right center'  => 'right center',
+					'right bottom'  => 'right bottom',
+					'center top'    => 'center top',
+					'center center' => 'center center',
+					'center bottom' => 'center bottom',
+				),
+			),
+			array(
+				'name'    => 'html_background_repeat',
+				'label'   => __( 'Background repeat', 'custom-login' ),
+				'desc'    => '',
+				'type'    => 'select',
+				'options' => array(
+					'no-repeat' => 'no-repeat',
+					'repeat'    => 'repeat',
+					'repeat-x'  => 'repeat-x',
+					'repeat-y'  => 'repeat-y',
+				),
+			),
+			array(
+				'name'    => 'html_background_size',
+				'label'   => __( 'Background size', 'custom-login' ),
+				'desc'    => '',
+				'type'    => 'select',
+				'options' => array(
+					'none'    => 'none',
+					'cover'   => 'cover',
+					'contain' => 'contain',
+					'flex'    => 'flex',
+				),
+			),
+
+			/**
+			 * Section LOGO
+			 */
+			array(
+				'name'      => '_section_logo',
+				'label'     => __( 'Logo', 'custom-login' ),
+				'desc'      => '',
+				'type'      => 'html_break',
+				'customize' => array(
+					'section'     => 'logo',
+					'add_section' => true,
+				),
+			),
+
+			array(
+				'name'  => 'hide_wp_logo',
+				'label' => __( 'Hide the WP logo', 'custom-login' ),
+				'desc'  => __( 'This setting hides the h1 element.', 'custom-login' ),
+				'type'  => 'checkbox',
+			),
+			array(
+				'name'        => 'logo_background_url',
+				'label'       => __( 'Image', 'custom-login' ),
+				'desc'        => __( 'I would suggest a max width of 320px, the default form width. You can widen the width (setting below).', 'custom-login' ),
+				'type'        => 'file',
+				'default'     => '',
+				'size'        => 'large',
+				'sanitize_cb' => 'esc_url',
+				'customize'   => array(
+					'section'     => 'logo',
+					'add_setting' => array(),
+					'add_control' => array(
+						'callback' => 'WP_Customize_Image_Control',
+						'args'     => array(),
+					),
+				),
+			),
+			array(
+				'name'        => 'logo_background_size_width',
+				'label'       => __( 'Image width', 'custom-login' ),
+				'desc'        => __( 'Enter your desired image height (All not integers will be removed).', 'custom-login' ),
+				'type'        => 'text_number',
+				'size'        => 'small',
+				'default'     => '',
+				'sanitize_cb' => 'int',
+			),
+			array(
+				'name'        => 'logo_background_size_height',
+				'label'       => __( 'Image height', 'custom-login' ),
+				'desc'        => __( 'Enter your desired image height (All not integers will be removed).', 'custom-login' ),
+				'type'        => 'text_number',
+				'size'        => 'small',
+				'default'     => '',
+				'sanitize_cb' => 'int',
+			),
+			array(
+				'name'    => 'logo_background_position',
+				'label'   => __( 'Background position', 'custom-login' ),
+				'desc'    => sprintf( '<a href="http://www.w3schools.com/cssref/pr_background-position.asp" target="_blank">%s</a>', __( 'html background position', 'custom-login' ) ),
+				'type'    => 'select',
+				'options' => array(
+					'left top'      => 'left top',
+					'left center'   => 'left center',
+					'left bottom'   => 'left bottom',
+					'right top'     => 'right top',
+					'right center'  => 'right center',
+					'right bottom'  => 'right bottom',
+					'center top'    => 'center top',
+					'center center' => 'center center',
+					'center bottom' => 'center bottom',
+				),
+			),
+			array(
+				'name'    => 'logo_background_repeat',
+				'label'   => __( 'Background repeat', 'custom-login' ),
+				'desc'    => '',
+				'type'    => 'select',
+				'options' => array(
+					'no-repeat' => 'no-repeat',
+					'repeat'    => 'repeat',
+					'repeat-x'  => 'repeat-x',
+					'repeat-y'  => 'repeat-y',
+				),
+			),
+			array(
+				'name'    => 'logo_background_size',
+				'label'   => __( 'Background size', 'custom-login' ),
+				'desc'    => '',
+				'type'    => 'select',
+				'options' => array(
+					'none'    => 'none',
+					'cover'   => 'cover',
+					'contain' => 'contain',
+					'flex'    => 'flex',
+				),
+			),
+
+			/**
+			 * Section FORM
+			 */
+			array(
+				'name'      => '_section_form',
+				'label'     => __( 'Login Form', 'custom-login' ),
+				'desc'      => '',
+				'type'      => 'html_break',
+				'customize' => array(
+					'section'     => 'form',
+					'add_section' => true,
+				),
+			),
+
+			array(
+				'name'  => 'logo_force_form_max_width',
+				'label' => __( 'Force max-width', 'custom-login' ),
+				'desc'  => __( 'If checked and the login form width (set below) is not empty, a CSS rule of <code>width</code> will be applied on the logo wrapper element <code>.login h1</code>. This settings applies to the Logo image (when background size is used).', 'custom-login' ),
+				'type'  => 'checkbox',
+			),
+			array(
+				'name'        => 'login_form_width',
+				'label'       => __( 'Width', 'custom-login' ),
+				'desc'        => __( 'Change the default width of the login form.', 'custom-login' ),
+				'type'        => 'text_number',
+				'size'        => 'small',
+				'default'     => '320',
+				'sanitize_cb' => 'int',
+			),
+			array(
+				'name'       => 'login_form_background_color',
+				'label'      => __( 'Background color', 'custom-login' ),
+				'desc'       => '',
+				'type'       => 'alphacolor',
+				'default'    => '',
+				'attributes' => array(
+					'data-alpha' => 'true',
+				),
+				'customize'  => array(
+					'section'     => 'form',
+					'add_setting' => array(),
+					'add_control' => array(
+						'callback' => 'CL_Customize_Alpha_Color_Control',
+						'args'     => array(
+							'type'    => 'alphacolor',
+							'palette' => true,
+						),
+					),
+				),
+			),
+			array(
+				'name'        => 'login_form_background_url',
+				'label'       => __( 'Background URL', 'custom-login' ),
+				'desc'        => __( 'Add a background image to the login form.', 'custom-login' ),
+				'type'        => 'file',
+				'default'     => '',
+				'size'        => 'large',
+				'sanitize_cb' => 'esc_url',
+			),
+			array(
+				'name'    => 'login_form_background_position',
+				'label'   => __( 'Background position', 'custom-login' ),
+				'desc'    => sprintf( '<a href="http://www.w3schools.com/cssref/pr_background-position.asp" target="_blank">%s</a>', __( 'html background position', 'custom-login' ) ),
+				'type'    => 'select',
+				'options' => array(
+					'left top'      => 'left top',
+					'left center'   => 'left center',
+					'left bottom'   => 'left bottom',
+					'right top'     => 'right top',
+					'right center'  => 'right center',
+					'right bottom'  => 'right bottom',
+					'center top'    => 'center top',
+					'center center' => 'center center',
+					'center bottom' => 'center bottom',
+				),
+			),
+			array(
+				'name'    => 'login_form_background_repeat',
+				'label'   => __( 'Background repeat', 'custom-login' ),
+				'desc'    => '',
+				'type'    => 'select',
+				'options' => array(
+					'no-repeat' => 'no-repeat',
+					'repeat'    => 'repeat',
+					'repeat-x'  => 'repeat-x',
+					'repeat-y'  => 'repeat-y',
+				),
+			),
+			array(
+				'name'    => 'login_form_background_size',
+				'label'   => __( 'Background size', 'custom-login' ),
+				'desc'    => '',
+				'type'    => 'select',
+				'options' => array(
+					'none'    => 'none',
+					'cover'   => 'cover',
+					'contain' => 'contain',
+					'flex'    => 'flex',
+				),
+			),
+			array(
+				'name'        => 'login_form_border_radius',
+				'label'       => __( 'Border radius', 'custom-login' ),
+				'desc'        => '',
+				'type'        => 'text_number',
+				'size'        => 'small',
+				'default'     => '',
+				'sanitize_cb' => 'int',
+			),
+			array(
+				'name'        => 'login_form_border_size',
+				'label'       => __( 'Border size', 'custom-login' ),
+				'desc'        => '',
+				'type'        => 'text_number',
+				'size'        => 'small',
+				'default'     => '',
+				'sanitize_cb' => 'int',
+			),
+			array(
+				'name'       => 'login_form_border_color',
+				'label'      => __( 'Border color', 'custom-login' ),
+				'desc'       => '',
+				'type'       => 'alphacolor',
+				'default'    => '',
+				'attributes' => array(
+					'data-alpha' => 'true',
+				),
+				'customize'  => array(
+					'section'     => 'form',
+					'add_setting' => array(),
+					'add_control' => array(
+						'callback' => 'CL_Customize_Alpha_Color_Control',
+						'args'     => array(
+							'type'    => 'alphacolor',
+							'palette' => true,
+						),
+					),
+				),
+			),
+			array(
+				'name'    => 'login_form_box_shadow',
+				'label'   => __( 'Box shadow', 'custom-login' ),
+				'desc'    => sprintf( __( 'Use <a href="%s" target="_blank">box shadow</a> syntax w/ out color. <code>inset h-shadow v-shadow blur spread</code>', 'custom-login' ), 'http://www.w3schools.com/cssref/css3_pr_box-shadow.asp' ),
+				'type'    => 'text',
+				'size'    => 'medium',
+				'default' => '5px 5px 10px',
+			),
+			array(
+				'name'       => 'login_form_box_shadow_color',
+				'label'      => __( 'Box shadow color', 'custom-login' ),
+				'desc'       => '',
+				'type'       => 'alphacolor',
+				'default'    => '',
+				'attributes' => array(
+					'data-alpha' => 'true',
+				),
+				'customize'  => array(
+					'section'     => 'form',
+					'add_setting' => array(),
+					'add_control' => array(
+						'callback' => 'CL_Customize_Alpha_Color_Control',
+						'args'     => array(
+							'type'    => 'alphacolor',
+							'palette' => true,
+						),
+					),
+				),
+			),
+
+			/**
+			 * Section MISCELLANEOUS
+			 */
+			array(
+				'name'      => '_section_miscellaneous',
+				'label'     => __( 'Miscellaneous', 'custom-login' ),
+				'desc'      => '',
+				'type'      => 'html_break',
+				'customize' => array(
+					'section'     => 'miscellaneous',
+					'add_section' => true,
+				),
+			),
+
+			array(
+				'name'       => 'label_color',
+				'label'      => __( 'Label color', 'custom-login' ),
+				'desc'       => '',
+				'type'       => 'alphacolor',
+				'default'    => '',
+				'attributes' => array(
+					'data-alpha' => 'true',
+				),
+				'customize'  => array(
+					'section'     => 'miscellaneous',
+					'add_setting' => array(),
+					'add_control' => array(
+						'callback' => 'CL_Customize_Alpha_Color_Control',
+						'args'     => array(
+							'type'    => 'alphacolor',
+							'palette' => true,
+						),
+					),
+				),
+			),
+
+			array(
+				'name'       => 'nav_color',
+				'label'      => __( 'Nav color', 'custom-login' ),
+				'desc'       => '',
+				'type'       => 'alphacolor',
+				'default'    => '',
+				'attributes' => array(
+					'data-alpha' => 'true',
+				),
+				'customize'  => array(
+					'section'     => 'miscellaneous',
+					'add_setting' => array(),
+					'add_control' => array(
+						'callback' => 'CL_Customize_Alpha_Color_Control',
+						'args'     => array(
+							'type'    => 'alphacolor',
+							'palette' => true,
+						),
+					),
+				),
+			),
+			array(
+				'name'       => 'nav_text_shadow_color',
+				'label'      => __( 'Nav text-shadow color', 'custom-login' ),
+				'desc'       => '',
+				'type'       => 'alphacolor',
+				'default'    => '',
+				'attributes' => array(
+					'data-alpha' => 'true',
+				),
+				'customize'  => array(
+					'section'     => 'miscellaneous',
+					'add_setting' => array(),
+					'add_control' => array(
+						'callback' => 'CL_Customize_Alpha_Color_Control',
+						'args'     => array(
+							'type'    => 'alphacolor',
+							'palette' => true,
+						),
+					),
+				),
+			),
+			array(
+				'name'       => 'nav_hover_color',
+				'label'      => __( 'Nav color hover', 'custom-login' ),
+				'desc'       => '',
+				'type'       => 'alphacolor',
+				'default'    => '',
+				'attributes' => array(
+					'data-alpha' => 'true',
+				),
+				'customize'  => array(
+					'section'     => 'miscellaneous',
+					'add_setting' => array(),
+					'add_control' => array(
+						'callback' => 'CL_Customize_Alpha_Color_Control',
+						'args'     => array(
+							'type'    => 'alphacolor',
+							'palette' => true,
+						),
+					),
+				),
+			),
+			array(
+				'name'       => 'nav_text_shadow_hover_color',
+				'label'      => __( 'Nav text-shadow hover', 'custom-login' ),
+				'desc'       => '',
+				'type'       => 'alphacolor',
+				'default'    => '',
+				'attributes' => array(
+					'data-alpha' => 'true',
+				),
+				'customize'  => array(
+					'section'     => 'miscellaneous',
+					'add_setting' => array(),
+					'add_control' => array(
+						'callback' => 'CL_Customize_Alpha_Color_Control',
+						'args'     => array(
+							'type'    => 'alphacolor',
+							'palette' => true,
+						),
+					),
+				),
+			),
+
+			/**
+			 * Section CSS
+			 */
+			array(
+				'name'      => '_section_css',
+				'label'     => __( 'Custom CSS', 'custom-login' ),
+				'desc'      => '',
+				'type'      => 'html_break',
+				'customize' => array(
+					'section'     => 'custom_css',
+					'add_section' => true,
+				),
+			),
+
+			array(
+				'name'        => 'custom_css',
+				'label'       => '',
+				'desc'        => '',
+				'type'        => 'textarea',
+				'sanitize_cb' => 'wp_filter_nohtml_kses',
+				'attributes'  => array(
+					'data-codemirror' => 'true',
+					'data-type' => 'text/css',
+				),
+				'customize'   => array(
+					'section'     => 'custom_css',
+					'add_setting' => array(),
+					'add_control' => array(
+						'callback' => 'CL_Customize_Textarea_Control',
+						'args'     => array(),
+					),
+				),
+			),
+			array(
+				'name'      => 'animate.css',
+				'label'     => __( 'Animate', 'custom-login' ),
+				'desc'      => sprintf( __( 'Enqueue <a href="%s">animate.css</a> on the login page?', 'custom-login' ), 'http://daneden.github.io/animate.css/' ),
+				'type'      => 'checkbox',
+				'customize' => array(
+					'section'     => 'custom_css',
+					'add_setting' => array(),
+					'add_control' => array(
+						'args' => array(
+							'type' => 'checkbox',
+						),
+					),
+				),
+			),
+
+			/**
+			 * Section CUSTOM HTML
+			 */
+			array(
+				'name'      => '_section_custom_html',
+				'label'     => __( 'Custom HTML', 'custom-login' ),
+				'desc'      => '',
+				'type'      => 'html_break',
+				'customize' => array(
+					'section'     => 'custom_html',
+					'add_section' => true,
+				),
+			),
+
+			array(
+				'name'        => 'custom_html',
+				'label'       => '',
+				'desc'        => '',
+				'type'        => 'textarea',
+				'sanitize_cb' => 'wp_kses_post', //Allow HTML
+				'attributes'  => array(
+					'data-codemirror' => 'true',
+					'data-type' => 'text/html',
+				),
+				'customize'   => array(
+					'section'     => 'custom_html',
+					'add_setting' => array(),
+					'add_control' => array(
+						'callback' => 'CL_Customize_Textarea_Control',
+						'args'     => array(),
+					),
+				),
+			),
+
+			/**
+			 * Section CUSTOM jQuery
+			 */
+			array(
+				'name'      => '_section_custom_jquery',
+				'label'     => __( 'Custom jQuery', 'custom-login' ),
+				'desc'      => '',
+				'type'      => 'html_break',
+				'customize' => array(
+					'section'     => 'custom_jquery',
+					'add_section' => true,
+				),
+			),
+
+			array(
+				'name'        => 'custom_jquery',
+				'label'       => '',
+				'desc'        => '',
+				'type'        => 'textarea',
+				'sanitize_cb' => 'wp_specialchars_decode',
+				'attributes'  => array(
+					'data-codemirror' => 'true',
+					'data-type' => 'text/javascript',
+				),
+				'customize'   => array(
+					'section'     => 'custom_jquery',
+					'add_setting' => array(),
+					'add_control' => array(
+						'callback' => 'CL_Customize_Textarea_Control',
+						'args'     => array(),
+					),
+				),
+			),
 		);
 
 		return apply_filters( 'custom_login_registered_settings_fields', $fields );

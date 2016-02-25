@@ -1,5 +1,8 @@
 <?php
 
+// Exit if accessed directly
+defined( 'ABSPATH' ) || exit;
+
 /**
  * Class CL_Hookup
  */
@@ -32,10 +35,10 @@ class CL_Hookup {
 		if ( ! $is_login_page ) {
 			( new CL_Cron() )->add_hooks();
 		} else {
-
 		}
 
 		( new CL_Login_Customizer() )->add_hooks();
+		( new CL_WP_Login() )->add_hooks();
 
 		self::setup_settings_api();
 	}
@@ -46,10 +49,11 @@ class CL_Hookup {
 	public static function admin_init() {
 
 		self::includes();
-	}
 
-	private static function includes() {
-		require_once CUSTOM_LOGIN_DIR . 'includes/functions.php';
+		( new CL_Admin_Plugin_PHP() )->add_hooks();
+		( new CL_Admin_Tracking() )->add_hooks();
+		( new CL_Admin_Settings_Import_Export() )->add_hooks();
+		( new CL_Admin_Dashboard() )->add_hooks();
 	}
 
 	/**
@@ -70,5 +74,12 @@ class CL_Hookup {
 			$cl_settings_api->set_sections( $cl_default_settings::get_registered_settings_sections() );
 			$cl_settings_api->set_fields( $cl_default_settings::get_registered_settings_fields() );
 		}
+	}
+
+	/**
+	 * Include functions file not loaded by the autoloader.
+	 */
+	private static function includes() {
+		require_once CUSTOM_LOGIN_DIR . 'includes/functions.php';
 	}
 }
