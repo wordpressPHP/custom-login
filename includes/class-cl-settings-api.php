@@ -78,10 +78,7 @@ class CL_Settings_API {
 		);
 
 		add_action( 'load-' . self::$menu_page, array( $this, 'load_cl_admin' ), 89 );
-		add_action( Custom_Login::DOMAIN . ' _admin_enqueue_scripts', array(
-			$this,
-			'admin_print_footer_scripts',
-		), 99 );
+		add_action( Custom_Login::DOMAIN . '_admin_enqueue_scripts', array( $this, 'admin_print_footer_scripts', ), 99 );
 	}
 
 	/**
@@ -157,7 +154,7 @@ class CL_Settings_API {
 		wp_enqueue_script( array( Custom_Login::DOMAIN, 'codemirror' ) );
 		wp_enqueue_style( array( Custom_Login::DOMAIN, 'codemirror', 'bulma-framework' ) );
 
-		do_action( Custom_Login::DOMAIN . ' _admin_enqueue_scripts' );
+		do_action( Custom_Login::DOMAIN . '_admin_enqueue_scripts' );
 	}
 
 	/**
