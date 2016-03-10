@@ -27,6 +27,8 @@ foreach ( CL_Settings_API::get_instance()->settings_sections as $section ) {
 		</form>
 
 	</div><?php
+
+	do_action( CL_Settings_API::SETTING_ID . '_settings_section', $section, $section[ 'id' ] );
 }
 
 do_action( CL_Settings_API::SETTING_ID . '_after_settings_sections_form' );
