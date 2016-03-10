@@ -259,7 +259,7 @@ class CL_Common {
 		 * When inside the customizer, we need to check
 		 * two global variable definitions.
 		 */
-		if ( ! is_null( $panel ) || $panel instanceof WP_Customize_Panel ) {
+		if ( ! is_null( $panel ) && $panel instanceof WP_Customize_Panel ) {
 			return 'customize.php' === $pagenow || 'wp-login.php' === $pagenow;
 		}
 
@@ -330,9 +330,9 @@ class CL_Common {
 	 */
 	public static function get_extension_description() {
 		return sprintf( '<span class="description cl-extensions-desc">%s</span>',
-			_x( 'A Custom Login Extension <strong>is</strong> a WordPress plugin. It\'s called an "extension" because it will
-not work without Custom Login installed; hence extending the functionality of Custom Login.',
-				'Defining what a Custom Login Extension is.', Custom_Login_Bootstrap::DOMAIN )
+			_x( 'A Custom Login Add-on <strong>is</strong> a WordPress plugin. It\'s called an ' .
+			    '"add-on plugin" because it will not work without Custom Login installed.',
+				'Defining what a Custom Login Extension/Add-on Plugin is.', Custom_Login_Bootstrap::DOMAIN )
 		);
 	}
 }

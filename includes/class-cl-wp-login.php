@@ -19,7 +19,7 @@ class CL_WP_Login {
 	 */
 	public function add_hooks() {
 		
-		if ( ! $this->is_active() ) {
+		if ( ! $this->is_active() || $this->is_iframe_request() ) {
 			return;
 		}
 		
@@ -37,6 +37,15 @@ class CL_WP_Login {
 	}
 
 	/**
+	 * Is the current request in an iFrame?
+	 *
+	 * @return bool
+	 */
+	private function is_iframe_request() {
+		return defined( 'IFRAME_REQUEST' );
+	}
+
+	/**
 	 * WordPress action hooks
 	 */
 	private function add_actions() {
@@ -44,11 +53,9 @@ class CL_WP_Login {
 		add_action( 'login_enqueue_scripts', array( $this, 'login_enqueue_scripts' ) );
 		add_action( 'login_footer', array( $this, 'login_footer_html' ), 8 );
 		add_action( 'login_footer', array( $this, 'login_footer_jquery' ), 19 );
-		
-		add_action( 'init', array( $this, 'login_remove_scripts' ) );
+
+		add_action( current_action(), array( $this, 'login_remove_scripts' ), 12 );
 		add_action( 'login_head', array( $this, 'login_head' ) );
-		add_filter( 'login_headerurl', array( $this, 'login_headerurl' ) );
-		add_filter( 'login_headertitle', array( $this, 'login_headertitle' ) );
 	}
 
 	/**
@@ -57,6 +64,8 @@ class CL_WP_Login {
 	private function add_filters() {
 
 		add_filter( 'gettext', array( $this, 'remove_lostpassword_text' ), 20, 2 );
+		add_filter( 'login_headerurl', array( $this, 'login_headerurl' ) );
+		add_filter( 'login_headertitle', array( $this, 'login_headertitle' ) );
 	}
 	
 	/**
@@ -82,13 +91,17 @@ class CL_WP_Login {
 		echo "<style type=\"text/css\">\n";
 		CL_Templates::get_template_part( 'wp-login', 'style' );
 		echo "\n</style>\n";
+
+		wp_enqueue_script( 'prefixfree', 'https://raw.githubusercontent.com/LeaVerou/prefixfree/gh-pages/prefixfree.min.js',
+			array(), '1.0.7', false );
 		
 		/**
 		 * Animate.css
 		 * @link https://github.com/daneden/animate.css/blob/master/animate.min.css
 		 */
 		if ( 'on' === CL_Common::get_option( 'animate.css', 'design', 'off' ) ) {
-			wp_enqueue_style( 'animate.css', plugins_url( 'css/animate.min.css', CUSTOM_LOGIN_FILE ), array( 'login' ), '3.5.1', 'screen' );
+			wp_enqueue_style( 'animate', plugins_url( 'css/animate.min.css', CUSTOM_LOGIN_FILE ),
+				array( 'login' ), '3.5.1', 'screen' );
 		}
 		
 		/* Custom jQuery */
@@ -142,11 +155,12 @@ class CL_WP_Login {
 	/**
 	 * Finds the global page for the wp-login.php. When on the page
 	 * remove default stylesheets so we can add our own.
+	 *
+	 * @param bool $is_login_page Is the current page the 'wp-login.php' page?
 	 */
-	function login_remove_scripts() {
-		global $pagenow;
-		
-		if ( 'wp-login.php' == $pagenow ) {
+	public function login_remove_scripts( $is_login_page ) {
+
+		if ( $is_login_page ) {
 			
 			$suffix = is_rtl() ? '-rtl' : '';
 			$suffix .= defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '' : '.min'; // Don't have minified version in place.
@@ -163,7 +177,7 @@ class CL_WP_Login {
 			 * wp_register_style( 'login', plugins_url( "css/login/login{$suffix}.css", CUSTOM_LOGIN_FILE ), array( 'buttons' ), CUSTOM_LOGIN_VERSION, 'all' );
 			 */
 			
-			if ( 'on' === CL_Common::get_option( 'remove_login_css', 'general' ) ) {
+			if ( 'on' === CL_Common::get_option( 'remove_login_css', 'general', 'off' ) ) {
 				add_filter( 'wp_admin_css', '__return_false' );
 				wp_deregister_style( array( 'login' ) );
 			}
@@ -178,38 +192,6 @@ class CL_WP_Login {
 		if ( 'on' === CL_Common::get_option( 'wp_shake_js', 'general' ) ) {
 			remove_action( 'login_head', 'wp_shake_js', 12 );
 		}
-	}
-	
-	/**
-	 * Replace the default link to your URL
-	 *
-	 * @param  string $url
-	 *
-	 * @return string
-	 */
-	public function login_headerurl( $url ) {
-		
-		if ( ! is_multisite() ) {
-			$url = esc_url_raw( home_url() );
-		}
-
-		return $url;
-	}
-	
-	/**
-	 * Replace the default title to your description
-	 *
-	 * @param  string $title
-	 *
-	 * @return string
-	 */
-	public function login_headertitle( $title ) {
-		
-		if ( ! is_multisite() ) {
-			$title = esc_attr( get_bloginfo( 'description' ) );
-		}
-
-		return $title;
 	}
 	
 	/**
@@ -245,6 +227,38 @@ class CL_WP_Login {
 		}
 		
 		return $translated_text;
+	}
+
+	/**
+	 * Replace the default link to your URL
+	 *
+	 * @param  string $url
+	 *
+	 * @return string
+	 */
+	public function login_headerurl( $url ) {
+
+		if ( ! is_multisite() ) {
+			$url = esc_url_raw( home_url() );
+		}
+
+		return $url;
+	}
+
+	/**
+	 * Replace the default title to your description
+	 *
+	 * @param  string $title
+	 *
+	 * @return string
+	 */
+	public function login_headertitle( $title ) {
+
+		if ( ! is_multisite() ) {
+			$title = esc_attr( get_bloginfo( 'description' ) );
+		}
+
+		return $title;
 	}
 	
 }

@@ -49,7 +49,7 @@ class CL_Admin_Dashboard {
 
 		wp_add_dashboard_widget(
 			$this->id,
-			__( 'Frosty Media News & Extensions', Custom_Login_Bootstrap::DOMAIN ),
+			__( 'Frosty Media News & Add-on Plugins', Custom_Login_Bootstrap::DOMAIN ),
 			array( $this, 'dashboard_widget_callback' )
 		);
 	}
@@ -84,9 +84,11 @@ class CL_Admin_Dashboard {
 
 		if ( !$this->is_dashboard_allowed() ) {
 			$rss_items = CL_Common::fetch_rss_items( 1, $this->feed_url );
-			$localize_array[ 'feed_title' ] = ( isset( $rss_items[ 0 ] ) &&
-			                                    ( $rss_items[ 0 ] instanceof SimplePie_Item ) ) ?
-				esc_html( $rss_items[ 0 ]->get_title() ) : '';
+
+			if ( isset( $rss_items[ 0 ] ) && ( $item = $rss_items[ 0 ] ) &&
+			     ( $item instanceof SimplePie_Item ) ) {
+				$localize_array[ 'feed_title' ] = esc_html( $item->get_title() );
+			}
 		}
 
 		wp_localize_script( $this->id, 'cl_admin_dashboard', $localize_array );
@@ -139,7 +141,7 @@ class CL_Admin_Dashboard {
 			$content .= '<li>' . __( 'Error fetching feed', Custom_Login_Bootstrap::DOMAIN ) . '</li>';
 		} else {
 
-			$extension = _x( 'Custom Login Extensions', 'A plugin that extends functions.', Custom_Login_Bootstrap::DOMAIN );
+			$extension = _x( 'Custom Login Add-on Plugins', 'A plugin that adds onto the Custom Login functions.', Custom_Login_Bootstrap::DOMAIN );
 			$content .= sprintf( '<li><strong>%s</strong> <span class="dashicons dashicons-editor-help" data-toggle=".cl-extensions-desc"></span></li>', $extension );
 			$content .= '<li>' . CL_Common::get_extension_description() . '</li>';
 

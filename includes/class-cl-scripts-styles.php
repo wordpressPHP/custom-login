@@ -121,10 +121,11 @@ class CL_Scripts_Styles {
 		$prefixes = array( '-webkit-', '-moz-', '-ms-', '-o-', '' );
 		
 		$output = "\n\t";
-		
+
 		foreach ( $prefixes as $prefix ) {
 			$output .= self::trailingsemicolonit( $prefix . $input . ': ' . esc_attr( $option ) );
 		}
+		$output .= self::trailingsemicolonit( $prefix . $input . ': ' . esc_attr( $option ) );
 		
 		return $output;
 	}

@@ -10,7 +10,8 @@ foreach ( CL_Settings_API::get_instance()->settings_sections as $section ) {
 	} ?>
 	<div id="<?php echo $section[ 'id' ]; ?>" class="group">
 
-		<form action="options.php" id="<?php echo $section[ 'id' ]; ?>form" method="post">
+		<form action="<?php esc_url( admin_url( 'options.php' ) ); ?>"
+		      id="<?php echo $section[ 'id' ]; ?>form" method="post">
 			<?php
 			do_action( CL_Settings_API::SETTING_ID . '_form_top_' . $section[ 'id' ] );
 
@@ -25,5 +26,7 @@ foreach ( CL_Settings_API::get_instance()->settings_sections as $section ) {
 			} ?>
 		</form>
 
-	</div>
-<?php }
+	</div><?php
+}
+
+do_action( CL_Settings_API::SETTING_ID . '_after_settings_sections_form' );

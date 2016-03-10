@@ -37,7 +37,7 @@ if ( ! $rss_items ) {
 $content .= '</ul>';
 
 CL_Settings_API::create_postbox( 'custom-login-extensions',
-	sprintf( __( 'Custom Login Extensions %s',
+	sprintf( __( 'Custom Login Add-ons %s',
 		Custom_Login_Bootstrap::DOMAIN ),
 		'<span class="dashicons dashicons-editor-help" data-toggle=".cl-extensions-desc"></span>'
 	),

@@ -29,7 +29,7 @@ if ( false === ( $js = get_transient( $js_atts[ 'trans_key' ] ) ) ) {
  * Plugin URI  : https://frosty.media/plugins/custom-login/
  * Version     : {$js_atts[ 'version' ]}
  * Author URI  : http://austin.passy.co/
- * Extensions  : https://frosty.media/plugin/tag/custom-login-extension/
+ * Add-on Plugins  : https://frosty.media/plugin/tag/custom-login-extension/
  */\n\n";
 	
 	/* Custom user input */

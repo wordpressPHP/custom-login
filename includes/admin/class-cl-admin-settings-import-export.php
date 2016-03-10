@@ -57,8 +57,8 @@ class CL_Admin_Settings_Import_Export {
 	 */
 	private function add_filters() {
 
-		add_filter( 'custom_login_registered_settings_sections', array( $this, 'add_settings_sections' ) );
-		add_filter( 'custom_login_registered_settings_fields', array( $this, 'add_settings_fields' ) );
+		add_filter( $this->setting_id . '_registered_settings_sections', array( $this, 'add_settings_sections' ) );
+		add_filter( $this->setting_id . '_registered_settings_fields', array( $this, 'add_settings_fields' ) );
 	}
 
 	/**

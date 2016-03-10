@@ -78,7 +78,10 @@ class CL_Settings_API {
 		);
 
 		add_action( 'load-' . self::$menu_page, array( $this, 'load_cl_admin' ), 89 );
-		add_action( Custom_Login::DOMAIN . ' _admin_enqueue_scripts', array( $this, 'admin_print_footer_scripts' ), 99 );
+		add_action( Custom_Login::DOMAIN . ' _admin_enqueue_scripts', array(
+			$this,
+			'admin_print_footer_scripts',
+		), 99 );
 	}
 
 	/**
@@ -176,8 +179,8 @@ class CL_Settings_API {
 	 */
 	public function enqueue_field_type_scripts() {
 
-		if ( !empty( $this->scripts_array ) ) {
-			foreach( array_unique( $this->scripts_array ) as $script ) {
+		if ( ! empty( $this->scripts_array ) ) {
+			foreach ( array_unique( $this->scripts_array ) as $script ) {
 
 				if ( wp_style_is( $script, 'registered' ) ) {
 					wp_print_styles( $script );
@@ -293,7 +296,7 @@ class CL_Settings_API {
 	 */
 	public function add_scripts_array( $value ) {
 
-		if ( !in_array( $value, $this->scripts_array ) ) {
+		if ( ! in_array( $value, $this->scripts_array ) ) {
 			$this->scripts_array[] = $value;
 		}
 	}
@@ -314,7 +317,6 @@ class CL_Settings_API {
 	 */
 	public static function show_forms() {
 		CL_Common::render_view( 'admin/settings-api-forms' );
-		do_action( self::SETTING_ID . '_after_settings_sections_form' );
 	}
 
 	/**
@@ -400,4 +402,17 @@ class CL_Settings_API {
 		return $has_upgrade;
 	}
 
+	/**
+	 * @param null $data
+	 *
+	 * @return array|null
+	 */
+	private function maybe_build_data_args( $data = null ) {
+
+		if ( defined( 'DOING_AJAX' ) && DOING_AJAX && ! empty( $_POST ) ) {
+			$data = array_map( 'sanitize_text_field', $_POST );
+		}
+
+		return $data;
+	}
 }

@@ -35,15 +35,24 @@ if ( ! class_exists( 'Custom_Login_Bootstrap' ) ) {
 
 		/**
 		 * Current version number
+		 *
 		 * @var string
 		 */
-		const VERSION = '4.0';
+		const VERSION = '4.0.0';
 
 		/**
 		 * Plugin text domain
+		 *
 		 * @var string
 		 */
 		const DOMAIN = 'custom-login';
+
+		/**
+		 * Plugin prefix ID
+		 *
+		 * @var string
+		 */
+		const ID = 'custom_login';
 
 		/** Singleton *************************************************************/
 		private static $instance;
@@ -112,7 +121,7 @@ if ( ! class_exists( 'Custom_Login_Bootstrap' ) ) {
 
 			add_action( 'plugins_loaded', array( $this, 'autoload_register' ), 10 );
 			add_action( 'plugins_loaded', array( $this, 'dependency_check' ), 989 );
-			add_action( 'init', array( $this, 'hookup' ), 5 );
+			add_action( 'init', array( $this, 'hookup' ), 4 );
 			add_action( 'init', array( $this, 'do_actions' ), 10 );
 		}
 
@@ -134,7 +143,7 @@ if ( ! class_exists( 'Custom_Login_Bootstrap' ) ) {
 		}
 
 		/**
-		 *
+		 * Run a dependency check during initial load.
 		 */
 		public function dependency_check() {
 			new CL_Dependency_Check();

@@ -28,7 +28,10 @@ class CL_Default_Settings {
 	public function add_hooks() {
 
 		add_action( 'admin_init', array( $this, 'admin_init' ) );
-		add_action( 'pre_update_option_' . CL_Settings_API::SETTING_ID, array( $this, 'combine_settings_array' ), 10, 2 );
+		add_action( 'pre_update_option_' . CL_Settings_API::SETTING_ID, array(
+			$this,
+			'combine_settings_array',
+		), 10, 2 );
 		add_action( 'update_option_' . CL_Settings_API::SETTING_ID, array( $this, 'delete_transients' ) );
 	}
 
@@ -95,7 +98,7 @@ class CL_Default_Settings {
 		register_setting(
 			CL_Settings_API::SETTING_ID,
 			CL_Settings_API::SETTING_ID,
-			array( $this, 'sanitize_options', )
+			array( $this, 'sanitize_options' )
 		);
 	}
 
@@ -107,6 +110,8 @@ class CL_Default_Settings {
 	 * @return array
 	 */
 	public function sanitize_options( $options ) {
+
+		error_log( print_r( $options, true ) );
 
 		if ( is_null( $options ) || ! is_array( $options ) ) {
 			return $options;
@@ -170,8 +175,8 @@ class CL_Default_Settings {
 	/**
 	 * This method combines our settings array into one multi-dimensional array.
 	 *
-	 * @param mixed  $value     The new, un-serialized option value.
-	 * @param mixed  $old_value The old option value.
+	 * @param mixed $value The new, un-serialized option value.
+	 * @param mixed $old_value The old option value.
 	 *
 	 * @return array
 	 */
@@ -334,7 +339,7 @@ class CL_Default_Settings {
 				'label' => __( 'Import/Export', 'custom-login' ),
 				'desc'  => __( 'Allow the import and export feature.', 'custom-login' ),
 				'type'  => 'checkbox',
-			)
+			),
 		);
 
 		/**
@@ -845,7 +850,7 @@ class CL_Default_Settings {
 				'sanitize_cb' => 'wp_filter_nohtml_kses',
 				'attributes'  => array(
 					'data-codemirror' => 'true',
-					'data-type' => 'text/css',
+					'data-type'       => 'text/css',
 				),
 				'customize'   => array(
 					'section'     => 'custom_css',
@@ -894,7 +899,7 @@ class CL_Default_Settings {
 				'sanitize_cb' => 'wp_kses_post', //Allow HTML
 				'attributes'  => array(
 					'data-codemirror' => 'true',
-					'data-type' => 'text/html',
+					'data-type'       => 'text/html',
 				),
 				'customize'   => array(
 					'section'     => 'custom_html',
@@ -928,7 +933,7 @@ class CL_Default_Settings {
 				'sanitize_cb' => 'wp_specialchars_decode',
 				'attributes'  => array(
 					'data-codemirror' => 'true',
-					'data-type' => 'text/javascript',
+					'data-type'       => 'text/javascript',
 				),
 				'customize'   => array(
 					'section'     => 'custom_jquery',

@@ -51,9 +51,10 @@ class CL_Hookup {
 		self::includes();
 
 		( new CL_Admin_Plugin_PHP() )->add_hooks();
-		( new CL_Admin_Tracking() )->add_hooks();
-		( new CL_Admin_Settings_Import_Export() )->add_hooks();
 		( new CL_Admin_Dashboard() )->add_hooks();
+		( new CL_Admin_Tracking() )->add_hooks();
+		( new CL_Extensions() )->add_hooks();
+		( new CL_Admin_Settings_Import_Export() )->add_hooks();
 	}
 
 	/**
@@ -81,5 +82,9 @@ class CL_Hookup {
 	 */
 	private static function includes() {
 		require_once CUSTOM_LOGIN_DIR . 'includes/functions.php';
+
+		if ( ! class_exists( 'Frosty_Media_Remote_Install_Client', false ) ) {
+			require_once( CUSTOM_LOGIN_DIR . 'includes/libraries/fm-remote-install-client/Frosty_Media_Remote_Install_Client.php' );
+		}
 	}
 }

@@ -8,7 +8,9 @@
  */
 
 // Exit if accessed directly
-if ( !defined( 'ABSPATH' ) ) exit;
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
 
 class CL_Settings_Upgrade {
 
@@ -20,8 +22,8 @@ class CL_Settings_Upgrade {
 	/**
 	 * Main Instance
 	 *
-	 * @staticvar 	array 	$instance
-	 * @return 		The one true instance
+	 * @staticvar    array    $instance
+	 * @return        The one true instance
 	 */
 	public static function instance() {
 		if ( ! isset( self::$instance ) ) {
@@ -29,14 +31,15 @@ class CL_Settings_Upgrade {
 			self::$instance->actions();
 			self::$instance->parent = CUSTOMLOGIN();
 		}
+
 		return self::$instance;
 	}
 
 	private function actions() {
 
-		add_action( 'admin_notices',								array( $this, 'upgrade_notices' ) );
-		add_action( 'admin_menu',								array( $this, 'add_submenu_page' ) );
-		add_action( 'wp_ajax_custom_login_trigger_upgrades',		array( $this, 'trigger_upgrades' ) );
+		add_action( 'admin_notices', array( $this, 'upgrade_notices' ) );
+		add_action( 'admin_menu', array( $this, 'add_submenu_page' ) );
+		add_action( 'wp_ajax_custom_login_trigger_upgrades', array( $this, 'trigger_upgrades' ) );
 	}
 
 	/**
@@ -48,8 +51,9 @@ class CL_Settings_Upgrade {
 	 */
 	public function upgrade_notices() {
 
-		if ( isset( $_GET['page'] ) && $_GET['page'] == ( 'custom-login-upgrades' || 'custom-login' ) )
-			return; // Don't show notices on the upgrades page
+		if ( isset( $_GET[ 'page' ] ) && $_GET[ 'page' ] == ( 'custom-login-upgrades' || 'custom-login' ) ) {
+			return;
+		} // Don't show notices on the upgrades page
 
 		$cl_version = get_option( CUSTOM_LOGIN_OPTION . '_version' );
 
@@ -64,11 +68,13 @@ class CL_Settings_Upgrade {
 		if ( false !== ( $old_settings = get_option( 'custom_login_settings', false ) ) ) {
 
 			// New install
-			if ( !$old_settings )
+			if ( ! $old_settings ) {
 				return;
+			}
 
-			if ( !empty( $old_settings ) && !empty( $old_settings['version'] ) )
-				$cl_version = $old_settings['version'];
+			if ( ! empty( $old_settings ) && ! empty( $old_settings[ 'version' ] ) ) {
+				$cl_version = $old_settings[ 'version' ];
+			}
 
 			// Versions less than 2.0
 			if ( version_compare( $cl_version, '2.0', '<' ) ) {
@@ -125,7 +131,7 @@ class CL_Settings_Upgrade {
 	 * @access      private
 	 * @since       2.0
 	 * @return      void
-	*/
+	 */
 	function upgrades_screen() {
 		?>
 		<div class="wrap">
@@ -133,18 +139,19 @@ class CL_Settings_Upgrade {
 			<div id="custom-login-upgrade-status">
 				<p>
 					<?php _e( 'The upgrade process has started, please be patient. This could take several minutes. You will be automatically redirected when the upgrade is finished.', CUSTOM_LOGIN_DIRNAME ); ?>
-					<img src="<?php echo esc_url( admin_url( 'images/loading.gif' ) ); ?>" id="custom-login-upgrade-loader"/>
+					<img src="<?php echo esc_url( admin_url( 'images/loading.gif' ) ); ?>"
+					     id="custom-login-upgrade-loader"/>
 				</p>
 			</div>
 			<script type="text/javascript">
-				jQuery( document ).ready( function($) {
+				jQuery(document).ready(function ($) {
 					// Trigger upgrades on page load
 					var data = {
-						action	: 'custom_login_trigger_upgrades',
-						nonce	: '<?php echo wp_create_nonce( 'CL_Settings_Upgrade' . basename( __FILE__ ) ); ?>'
+						action: 'custom_login_trigger_upgrades',
+						nonce: '<?php echo wp_create_nonce( 'CL_Settings_Upgrade' . basename( __FILE__ ) ); ?>'
 					};
-					$.post( ajaxurl, data, function (response) {
-						if ( response == 'complete' ) {
+					$.post(ajaxurl, data, function (response) {
+						if (response == 'complete') {
 							$('#custom-login-upgrade-loader').hide();
 							document.location.href = 'options-general.php?page=custom-login';
 						}
@@ -162,7 +169,7 @@ class CL_Settings_Upgrade {
 	 *
 	 * @access      private
 	 * @since       2.0
-	*/
+	 */
 	public function trigger_upgrades() {
 
 		check_ajax_referer( 'CL_Settings_Upgrade' . basename( __FILE__ ), 'nonce' );
@@ -180,8 +187,9 @@ class CL_Settings_Upgrade {
 
 			$cl_version = '1.0';
 
-			if ( !empty( $old_settings ) && !empty( $old_settings['version'] ) )
-				$cl_version = $old_settings['version'];
+			if ( ! empty( $old_settings ) && ! empty( $old_settings[ 'version' ] ) ) {
+				$cl_version = $old_settings[ 'version' ];
+			}
 
 			if ( version_compare( $cl_version, '2.0', '<' ) ) {
 				$this->cl_v20_upgrades();
@@ -194,8 +202,9 @@ class CL_Settings_Upgrade {
 
 			$cl_version = '2.0';
 
-			if ( !empty( $old_settings ) && !empty( $old_settings['version'] ) )
-				$cl_version = $old_settings['version'];
+			if ( ! empty( $old_settings ) && ! empty( $old_settings[ 'version' ] ) ) {
+				$cl_version = $old_settings[ 'version' ];
+			}
 
 			if ( version_compare( $cl_version, '3.0', '<' ) ) {
 				$this->cl_v30_upgrades();
@@ -227,57 +236,58 @@ class CL_Settings_Upgrade {
 		$old_settings = get_option( 'custom_login_settings' );
 		$new_settings = get_option( 'custom_login', array() );
 
-		$new_settings['version'] = $this->parent->version;
-		$new_settings['active'] = true === $old_settings['custom'] ? 'on' : 'off';
-		$new_settings['html_background_color'] = CL_Scripts_Styles::is_rgba( $old_settings['html_background_color'] ) ? CL_Scripts_Styles::rgba2hex( $old_settings['html_background_color'] ) : $old_settings['html_background_color'];
-		$new_settings['html_background_color_checkbox'] = 'off';
-		$new_settings['html_background_color_opacity'] = '';
-		$new_settings['html_background_url'] = $old_settings['html_background_url'];
-		$new_settings['html_background_position'] = 'left top';
-		$new_settings['html_background_repeat'] = $old_settings['html_background_repeat'];
-		$new_settings['html_background_size'] = $old_settings['html_background_size'];
-		$new_settomgs['hide_wp_logo'] = 'on';
-		$new_settings['logo_background_url'] = $old_settings['login_form_logo'];
-		$new_settings['logo_background_position'] = 'top center';
-		$new_settings['logo_background_repeat'] = '';
-		$new_settings['logo_background_size'] = '';
-		$new_settings['login_form_background_color'] = CL_Scripts_Styles::is_rgba( $old_settings['html_background_color'] ) ? CL_Scripts_Styles::rgba2hex( $old_settings['login_form_background_color'] ) : $old_settings['login_form_background_color'];
-		$new_settings['login_form_background_color_checkbox'] = 'off';
-		$new_settings['login_form_background_color_opacity'] = '';
-		$new_settings['login_form_background_url'] = $old_settings['login_form_background'];
-		$new_settings['login_form_background_position'] = '';
-		$new_settings['login_form_background_repeat'] = '';
-		$new_settings['login_form_background_size'] = $old_settings['login_form_background_size'];
-		$new_settings['login_form_border_radius'] = $old_settings['login_form_border_radius'];
-		$new_settings['login_form_border_size'] = $old_settings['login_form_border'];
-		$new_settings['login_form_border_color'] = CL_Scripts_Styles::is_rgba( $old_settings['html_background_color'] ) ? CL_Scripts_Styles::rgba2hex( $old_settings['login_form_border_color'] ) : $old_settings['login_form_border_color'];
-		$new_settings['login_form_border_color_checkbox'] = 'off';
-		$new_settings['login_form_border_color_opacity'] = '';
-		$new_settings['login_form_box_shadow'] = $old_settings['login_form_box_shadow_1'] . 'px ' . $old_settings['login_form_box_shadow_2'] . 'px ' . $old_settings['login_form_box_shadow_3'] . 'px';
-		$new_settings['login_form_box_shadow_color'] = CL_Scripts_Styles::is_rgba( $old_settings['html_background_color'] ) ? CL_Scripts_Styles::rgba2hex( $old_settings['login_form_box_shadow_4'] ) : $old_settings['login_form_box_shadow_4'];
-		$new_settings['login_form_box_shadow_color_checkbox'] = 'off';
-		$new_settings['login_form_box_shadow_color_opacity'] = '';
-		$new_settings['label_color'] = CL_Scripts_Styles::is_rgba( $old_settings['html_background_color'] ) ? CL_Scripts_Styles::rgba2hex( $old_settings['label_color'] ) : $old_settings['label_color'];
-		$new_settings['label_color_checkbox'] = 'off';
-		$new_settings['label_color_opacity'] = '';
-		$new_settings['nav_color'] = '';
-		$new_settings['nav_color_checkbox'] = 'off';
-		$new_settings['nav_color_opacity'] = '';
-		$new_settings['nav_text_shadow_color'] = '';
-		$new_settings['nav_text_shadow_color_checkbox'] = 'off';
-		$new_settings['nav_text_shadow_color_opacity'] = '';
-		$new_settings['nav_hover_color'] = '';
-		$new_settings['nav_hover_color_checkbox'] = 'off';
-		$new_settings['nav_hover_color_opacity'] = '';
-		$new_settings['nav_text_shadow_hover_color'] = '';
-		$new_settings['nav_text_shadow_hover_color_checkbox'] = 'off';
-		$new_settings['nav_text_shadow_hover_color_opacity'] = '';
-		$new_settings['custom_css'] = wp_filter_nohtml_kses( $old_settings['custom_css'] );
-		$new_settings['custom_html'] = wp_kses_post( $old_settings['custom_html'] );
-		$new_settings['custom_jquery'] = wp_specialchars_decode( stripslashes( $old_settings['custom_jquery'] ), 1, 0, 1 );
+		$new_settings[ 'version' ]                              = $this->parent->version;
+		$new_settings[ 'active' ]                               = true === $old_settings[ 'custom' ] ? 'on' : 'off';
+		$new_settings[ 'html_background_color' ]                = CL_Scripts_Styles::is_rgba( $old_settings[ 'html_background_color' ] ) ? CL_Scripts_Styles::rgba2hex( $old_settings[ 'html_background_color' ] ) : $old_settings[ 'html_background_color' ];
+		$new_settings[ 'html_background_color_checkbox' ]       = 'off';
+		$new_settings[ 'html_background_color_opacity' ]        = '';
+		$new_settings[ 'html_background_url' ]                  = $old_settings[ 'html_background_url' ];
+		$new_settings[ 'html_background_position' ]             = 'left top';
+		$new_settings[ 'html_background_repeat' ]               = $old_settings[ 'html_background_repeat' ];
+		$new_settings[ 'html_background_size' ]                 = $old_settings[ 'html_background_size' ];
+		$new_settomgs[ 'hide_wp_logo' ]                         = 'on';
+		$new_settings[ 'logo_background_url' ]                  = $old_settings[ 'login_form_logo' ];
+		$new_settings[ 'logo_background_position' ]             = 'top center';
+		$new_settings[ 'logo_background_repeat' ]               = '';
+		$new_settings[ 'logo_background_size' ]                 = '';
+		$new_settings[ 'login_form_background_color' ]          = CL_Scripts_Styles::is_rgba( $old_settings[ 'html_background_color' ] ) ? CL_Scripts_Styles::rgba2hex( $old_settings[ 'login_form_background_color' ] ) : $old_settings[ 'login_form_background_color' ];
+		$new_settings[ 'login_form_background_color_checkbox' ] = 'off';
+		$new_settings[ 'login_form_background_color_opacity' ]  = '';
+		$new_settings[ 'login_form_background_url' ]            = $old_settings[ 'login_form_background' ];
+		$new_settings[ 'login_form_background_position' ]       = '';
+		$new_settings[ 'login_form_background_repeat' ]         = '';
+		$new_settings[ 'login_form_background_size' ]           = $old_settings[ 'login_form_background_size' ];
+		$new_settings[ 'login_form_border_radius' ]             = $old_settings[ 'login_form_border_radius' ];
+		$new_settings[ 'login_form_border_size' ]               = $old_settings[ 'login_form_border' ];
+		$new_settings[ 'login_form_border_color' ]              = CL_Scripts_Styles::is_rgba( $old_settings[ 'html_background_color' ] ) ? CL_Scripts_Styles::rgba2hex( $old_settings[ 'login_form_border_color' ] ) : $old_settings[ 'login_form_border_color' ];
+		$new_settings[ 'login_form_border_color_checkbox' ]     = 'off';
+		$new_settings[ 'login_form_border_color_opacity' ]      = '';
+		$new_settings[ 'login_form_box_shadow' ]                = $old_settings[ 'login_form_box_shadow_1' ] . 'px ' . $old_settings[ 'login_form_box_shadow_2' ] . 'px ' . $old_settings[ 'login_form_box_shadow_3' ] . 'px';
+		$new_settings[ 'login_form_box_shadow_color' ]          = CL_Scripts_Styles::is_rgba( $old_settings[ 'html_background_color' ] ) ? CL_Scripts_Styles::rgba2hex( $old_settings[ 'login_form_box_shadow_4' ] ) : $old_settings[ 'login_form_box_shadow_4' ];
+		$new_settings[ 'login_form_box_shadow_color_checkbox' ] = 'off';
+		$new_settings[ 'login_form_box_shadow_color_opacity' ]  = '';
+		$new_settings[ 'label_color' ]                          = CL_Scripts_Styles::is_rgba( $old_settings[ 'html_background_color' ] ) ? CL_Scripts_Styles::rgba2hex( $old_settings[ 'label_color' ] ) : $old_settings[ 'label_color' ];
+		$new_settings[ 'label_color_checkbox' ]                 = 'off';
+		$new_settings[ 'label_color_opacity' ]                  = '';
+		$new_settings[ 'nav_color' ]                            = '';
+		$new_settings[ 'nav_color_checkbox' ]                   = 'off';
+		$new_settings[ 'nav_color_opacity' ]                    = '';
+		$new_settings[ 'nav_text_shadow_color' ]                = '';
+		$new_settings[ 'nav_text_shadow_color_checkbox' ]       = 'off';
+		$new_settings[ 'nav_text_shadow_color_opacity' ]        = '';
+		$new_settings[ 'nav_hover_color' ]                      = '';
+		$new_settings[ 'nav_hover_color_checkbox' ]             = 'off';
+		$new_settings[ 'nav_hover_color_opacity' ]              = '';
+		$new_settings[ 'nav_text_shadow_hover_color' ]          = '';
+		$new_settings[ 'nav_text_shadow_hover_color_checkbox' ] = 'off';
+		$new_settings[ 'nav_text_shadow_hover_color_opacity' ]  = '';
+		$new_settings[ 'custom_css' ]                           = wp_filter_nohtml_kses( $old_settings[ 'custom_css' ] );
+		$new_settings[ 'custom_html' ]                          = wp_kses_post( $old_settings[ 'custom_html' ] );
+		$new_settings[ 'custom_jquery' ]                        = wp_specialchars_decode( stripslashes( $old_settings[ 'custom_jquery' ] ), 1, 0, 1 );
 
 		update_option( 'custom_login', $new_settings );
 		delete_option( 'custom_login_settings' );
+
 		return true;
 	}
 
@@ -290,82 +300,83 @@ class CL_Settings_Upgrade {
 	 */
 	private function cl_v30_upgrades() {
 
-		$old_settings		= get_option( 'custom_login', array() );
-		$design_settings	= get_option( CUSTOM_LOGIN_OPTION . '_design', array() );
-		$general_settings	= get_option( CUSTOM_LOGIN_OPTION . '_general', array() );
+		$old_settings     = get_option( 'custom_login', array() );
+		$design_settings  = get_option( CUSTOM_LOGIN_OPTION . '_design', array() );
+		$general_settings = get_option( CUSTOM_LOGIN_OPTION . '_general', array() );
 
 		/** Design */
-		$design_settings['html_background_color'] = $this->get_old_setting( $old_settings, 'html_background_color' );
-		$design_settings['html_background_color_checkbox'] = $this->get_old_setting( $old_settings, 'html_background_color_checkbox' );
-		$design_settings['html_background_color_opacity'] = $this->get_old_setting( $old_settings, 'html_background_color_opacity' );
-		$design_settings['html_background_url'] = $this->get_old_setting( $old_settings, 'html_background_url' );
-		$design_settings['html_background_position'] = $this->get_old_setting( $old_settings, 'html_background_position' );
-		$design_settings['html_background_repeat'] = $this->get_old_setting( $old_settings, 'html_background_repeat' );
-		$design_settings['html_background_size'] = $this->get_old_setting( $old_settings, 'html_background_size' );
+		$design_settings[ 'html_background_color' ]          = $this->get_old_setting( $old_settings, 'html_background_color' );
+		$design_settings[ 'html_background_color_checkbox' ] = $this->get_old_setting( $old_settings, 'html_background_color_checkbox' );
+		$design_settings[ 'html_background_color_opacity' ]  = $this->get_old_setting( $old_settings, 'html_background_color_opacity' );
+		$design_settings[ 'html_background_url' ]            = $this->get_old_setting( $old_settings, 'html_background_url' );
+		$design_settings[ 'html_background_position' ]       = $this->get_old_setting( $old_settings, 'html_background_position' );
+		$design_settings[ 'html_background_repeat' ]         = $this->get_old_setting( $old_settings, 'html_background_repeat' );
+		$design_settings[ 'html_background_size' ]           = $this->get_old_setting( $old_settings, 'html_background_size' );
 
-		$design_settings['logo_force_form_max_width'] = 'off'; // New
-		$design_settings['hide_wp_logo'] = $this->get_old_setting( $old_settings, 'hide_wp_logo' );
-		$design_settings['logo_background_url'] = $this->get_old_setting( $old_settings, 'logo_background_url' );
-		$design_settings['logo_background_size_width'] = $this->get_old_setting( $old_settings, 'logo_background_size_width' );
-		$design_settings['logo_background_size_height'] = $this->get_old_setting( $old_settings, 'logo_background_size_height' );
-		$design_settings['logo_background_position'] = $this->get_old_setting( $old_settings, 'logo_background_position' );
-		$design_settings['logo_background_repeat'] = $this->get_old_setting( $old_settings, 'logo_background_repeat' );
-		$design_settings['logo_background_size'] = $this->get_old_setting( $old_settings, 'logo_background_size' );
+		$design_settings[ 'logo_force_form_max_width' ]   = 'off'; // New
+		$design_settings[ 'hide_wp_logo' ]                = $this->get_old_setting( $old_settings, 'hide_wp_logo' );
+		$design_settings[ 'logo_background_url' ]         = $this->get_old_setting( $old_settings, 'logo_background_url' );
+		$design_settings[ 'logo_background_size_width' ]  = $this->get_old_setting( $old_settings, 'logo_background_size_width' );
+		$design_settings[ 'logo_background_size_height' ] = $this->get_old_setting( $old_settings, 'logo_background_size_height' );
+		$design_settings[ 'logo_background_position' ]    = $this->get_old_setting( $old_settings, 'logo_background_position' );
+		$design_settings[ 'logo_background_repeat' ]      = $this->get_old_setting( $old_settings, 'logo_background_repeat' );
+		$design_settings[ 'logo_background_size' ]        = $this->get_old_setting( $old_settings, 'logo_background_size' );
 
-		$design_settings['login_form_width'] = ''; // New
+		$design_settings[ 'login_form_width' ] = ''; // New
 
-		$design_settings['login_form_background_color'] = $this->get_old_setting( $old_settings, 'login_form_background_color' );
-		$design_settings['login_form_background_color_checkbox'] = $this->get_old_setting( $old_settings, 'login_form_background_color_checkbox' );
-		$design_settings['login_form_background_color_opacity'] = $this->get_old_setting( $old_settings, 'login_form_background_color_opacity' );
-		$design_settings['login_form_background_url'] = $this->get_old_setting( $old_settings, 'login_form_background_url' );
-		$design_settings['login_form_background_position'] = $this->get_old_setting( $old_settings, 'login_form_background_position' );
-		$design_settings['login_form_background_repeat'] = $this->get_old_setting( $old_settings, 'login_form_background_repeat' );
-		$design_settings['login_form_background_size'] = $this->get_old_setting( $old_settings, 'login_form_background_size' );
+		$design_settings[ 'login_form_background_color' ]          = $this->get_old_setting( $old_settings, 'login_form_background_color' );
+		$design_settings[ 'login_form_background_color_checkbox' ] = $this->get_old_setting( $old_settings, 'login_form_background_color_checkbox' );
+		$design_settings[ 'login_form_background_color_opacity' ]  = $this->get_old_setting( $old_settings, 'login_form_background_color_opacity' );
+		$design_settings[ 'login_form_background_url' ]            = $this->get_old_setting( $old_settings, 'login_form_background_url' );
+		$design_settings[ 'login_form_background_position' ]       = $this->get_old_setting( $old_settings, 'login_form_background_position' );
+		$design_settings[ 'login_form_background_repeat' ]         = $this->get_old_setting( $old_settings, 'login_form_background_repeat' );
+		$design_settings[ 'login_form_background_size' ]           = $this->get_old_setting( $old_settings, 'login_form_background_size' );
 
-		$design_settings['login_form_border_radius'] = $this->get_old_setting( $old_settings, 'login_form_border_radius' );
-		$design_settings['login_form_border_size'] = $this->get_old_setting( $old_settings, 'login_form_border_size' );
-		$design_settings['login_form_border_color'] = $this->get_old_setting( $old_settings, 'login_form_border_color' );
-		$design_settings['login_form_border_color_checkbox'] = $this->get_old_setting( $old_settings, 'login_form_border_color_checkbox' );
-		$design_settings['login_form_border_color_opacity'] = $this->get_old_setting( $old_settings, 'login_form_border_color_opacity' );
-		$design_settings['login_form_box_shadow'] = $this->get_old_setting( $old_settings, 'login_form_box_shadow' );
-		$design_settings['login_form_box_shadow_color'] = $this->get_old_setting( $old_settings, 'login_form_box_shadow_color' );
-		$design_settings['login_form_box_shadow_color_checkbox'] = $this->get_old_setting( $old_settings, 'login_form_box_shadow_color_checkbox' );
-		$design_settings['login_form_box_shadow_color_opacity'] = $this->get_old_setting( $old_settings, 'login_form_box_shadow_color_opacity' );
+		$design_settings[ 'login_form_border_radius' ]             = $this->get_old_setting( $old_settings, 'login_form_border_radius' );
+		$design_settings[ 'login_form_border_size' ]               = $this->get_old_setting( $old_settings, 'login_form_border_size' );
+		$design_settings[ 'login_form_border_color' ]              = $this->get_old_setting( $old_settings, 'login_form_border_color' );
+		$design_settings[ 'login_form_border_color_checkbox' ]     = $this->get_old_setting( $old_settings, 'login_form_border_color_checkbox' );
+		$design_settings[ 'login_form_border_color_opacity' ]      = $this->get_old_setting( $old_settings, 'login_form_border_color_opacity' );
+		$design_settings[ 'login_form_box_shadow' ]                = $this->get_old_setting( $old_settings, 'login_form_box_shadow' );
+		$design_settings[ 'login_form_box_shadow_color' ]          = $this->get_old_setting( $old_settings, 'login_form_box_shadow_color' );
+		$design_settings[ 'login_form_box_shadow_color_checkbox' ] = $this->get_old_setting( $old_settings, 'login_form_box_shadow_color_checkbox' );
+		$design_settings[ 'login_form_box_shadow_color_opacity' ]  = $this->get_old_setting( $old_settings, 'login_form_box_shadow_color_opacity' );
 
-		$design_settings['label_color'] = $this->get_old_setting( $old_settings, 'label_color' );
-		$design_settings['label_color_checkbox'] = $this->get_old_setting( $old_settings, 'label_color_checkbox' );
-		$design_settings['label_color_opacity'] = $this->get_old_setting( $old_settings, 'label_color_opacity' );
+		$design_settings[ 'label_color' ]          = $this->get_old_setting( $old_settings, 'label_color' );
+		$design_settings[ 'label_color_checkbox' ] = $this->get_old_setting( $old_settings, 'label_color_checkbox' );
+		$design_settings[ 'label_color_opacity' ]  = $this->get_old_setting( $old_settings, 'label_color_opacity' );
 
-		$design_settings['nav_color'] = $this->get_old_setting( $old_settings, 'nav_color' );
-		$design_settings['nav_color_checkbox'] = $this->get_old_setting( $old_settings, 'nav_color_checkbox' );
-		$design_settings['nav_color_opacity'] = $this->get_old_setting( $old_settings, 'nav_color_opacity' );
-		$design_settings['nav_text_shadow_color'] = $this->get_old_setting( $old_settings, 'nav_text_shadow_color' );
-		$design_settings['nav_text_shadow_color_checkbox'] = $this->get_old_setting( $old_settings, 'nav_text_shadow_color_checkbox' );
-		$design_settings['nav_text_shadow_color_opacity'] = $this->get_old_setting( $old_settings, 'nav_text_shadow_color_opacity' );
-		$design_settings['nav_hover_color'] = $this->get_old_setting( $old_settings, 'nav_hover_color' );
-		$design_settings['nav_hover_color_checkbox'] = $this->get_old_setting( $old_settings, 'nav_hover_color_checkbox' );
-		$design_settings['nav_hover_color_opacity'] = $this->get_old_setting( $old_settings, 'nav_hover_color_opacity' );
-		$design_settings['nav_text_shadow_hover_color'] = $this->get_old_setting( $old_settings, 'nav_text_shadow_hover_color' );
-		$design_settings['nav_text_shadow_hover_color_checkbox'] = $this->get_old_setting( $old_settings, 'nav_text_shadow_hover_color_checkbox' );
-		$design_settings['nav_text_shadow_hover_color_opacity'] = $this->get_old_setting( $old_settings, 'nav_text_shadow_hover_color_opacity' );
+		$design_settings[ 'nav_color' ]                            = $this->get_old_setting( $old_settings, 'nav_color' );
+		$design_settings[ 'nav_color_checkbox' ]                   = $this->get_old_setting( $old_settings, 'nav_color_checkbox' );
+		$design_settings[ 'nav_color_opacity' ]                    = $this->get_old_setting( $old_settings, 'nav_color_opacity' );
+		$design_settings[ 'nav_text_shadow_color' ]                = $this->get_old_setting( $old_settings, 'nav_text_shadow_color' );
+		$design_settings[ 'nav_text_shadow_color_checkbox' ]       = $this->get_old_setting( $old_settings, 'nav_text_shadow_color_checkbox' );
+		$design_settings[ 'nav_text_shadow_color_opacity' ]        = $this->get_old_setting( $old_settings, 'nav_text_shadow_color_opacity' );
+		$design_settings[ 'nav_hover_color' ]                      = $this->get_old_setting( $old_settings, 'nav_hover_color' );
+		$design_settings[ 'nav_hover_color_checkbox' ]             = $this->get_old_setting( $old_settings, 'nav_hover_color_checkbox' );
+		$design_settings[ 'nav_hover_color_opacity' ]              = $this->get_old_setting( $old_settings, 'nav_hover_color_opacity' );
+		$design_settings[ 'nav_text_shadow_hover_color' ]          = $this->get_old_setting( $old_settings, 'nav_text_shadow_hover_color' );
+		$design_settings[ 'nav_text_shadow_hover_color_checkbox' ] = $this->get_old_setting( $old_settings, 'nav_text_shadow_hover_color_checkbox' );
+		$design_settings[ 'nav_text_shadow_hover_color_opacity' ]  = $this->get_old_setting( $old_settings, 'nav_text_shadow_hover_color_opacity' );
 
-		$design_settings['custom_css'] = wp_filter_nohtml_kses( $this->get_old_setting( $old_settings, 'custom_css' ) );
-		$design_settings['animate.css'] = 'off'; // New
-		$design_settings['custom_html'] = wp_kses_post( $this->get_old_setting( $old_settings, 'custom_html' ) );
-		$design_settings['custom_jquery'] = wp_specialchars_decode( stripslashes( $this->get_old_setting( $old_settings, 'custom_jquery' ) ), 1, 0, 1 );
+		$design_settings[ 'custom_css' ]    = wp_filter_nohtml_kses( $this->get_old_setting( $old_settings, 'custom_css' ) );
+		$design_settings[ 'animate.css' ]   = 'off'; // New
+		$design_settings[ 'custom_html' ]   = wp_kses_post( $this->get_old_setting( $old_settings, 'custom_html' ) );
+		$design_settings[ 'custom_jquery' ] = wp_specialchars_decode( stripslashes( $this->get_old_setting( $old_settings, 'custom_jquery' ) ), 1, 0, 1 );
 
 		/** General */
-		$general_settings['active'] = $this->get_old_setting( $old_settings, 'active', 'on' );
-		$general_settings['capability'] = 'manage_options'; // New
-		$general_settings['tracking'] = 'off'; // New
-		$general_settings['admin_notices'] = 'off'; // New
-		$general_settings['wp_shake_js'] = 'off'; // New
-		$general_settings['remove_login_css'] = 'off'; // New
-		$general_settings['lostpassword_text'] = 'off'; // New
+		$general_settings[ 'active' ]            = $this->get_old_setting( $old_settings, 'active', 'on' );
+		$general_settings[ 'capability' ]        = 'manage_options'; // New
+		$general_settings[ 'tracking' ]          = 'off'; // New
+		$general_settings[ 'admin_notices' ]     = 'off'; // New
+		$general_settings[ 'wp_shake_js' ]       = 'off'; // New
+		$general_settings[ 'remove_login_css' ]  = 'off'; // New
+		$general_settings[ 'lostpassword_text' ] = 'off'; // New
 
 		update_option( CUSTOM_LOGIN_OPTION . '_design', $design_settings );
 		update_option( CUSTOM_LOGIN_OPTION . '_general', $general_settings );
 		delete_option( 'custom_login' );
+
 		return true;
 	}
 
@@ -381,15 +392,15 @@ class CL_Settings_Upgrade {
 		$general_settings = get_option( CUSTOM_LOGIN_OPTION . '_general', array() );
 
 		// Remove old settings
-		unset( $general_settings['allow_password_reset'] );
-		unset( $general_settings['auth_timeout'] );
-		unset( $general_settings['auth_timeout_remember'] );
+		unset( $general_settings[ 'allow_password_reset' ] );
+		unset( $general_settings[ 'auth_timeout' ] );
+		unset( $general_settings[ 'auth_timeout_remember' ] );
 
 		// Leave
-		$general_settings['active'] = $this->get_old_setting( $general_settings, 'active', 'on' );
+		$general_settings[ 'active' ] = $this->get_old_setting( $general_settings, 'active', 'on' );
 
 		// New settings
-		$general_settings['dashboard_widget'] = 'off';
+		$general_settings[ 'dashboard_widget' ] = 'off';
 
 		update_option( CUSTOM_LOGIN_OPTION . '_general', $general_settings );
 
@@ -404,23 +415,27 @@ class CL_Settings_Upgrade {
 		/** Cleanup Cron Events */
 		wp_clear_scheduled_hook( 'cl_daily_scheduled_events' );
 		wp_clear_scheduled_hook( 'cl_weekly_scheduled_events' );
+
 		return true;
 	}
 
 	/**
 	 * Helper function to check if option isset
 	 *
-	 * @since	12/26/2014
+	 * @since    12/26/2014
 	 */
 	private function get_old_setting( $setting = array(), $option = null, $default = '' ) {
-		if ( is_null( $option ) )
+		if ( is_null( $option ) ) {
 			return $default;
+		}
 
-		if ( isset( $setting[$option] ) )
-			return $setting[$option];
+		if ( isset( $setting[ $option ] ) ) {
+			return $setting[ $option ];
+		}
 
 		return $default;
 	}
 
 }
+
 CL_Settings_Upgrade::instance();

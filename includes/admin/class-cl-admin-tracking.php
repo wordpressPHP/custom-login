@@ -64,7 +64,9 @@ class CL_Admin_Tracking {
 		 * Send a 'once a week' (while tracking is allowed) to check in,
 		 * which can be used to determine active sites.
 		 */
-		add_action( CL_Cron::WEEKLY_ID, array( $this, 'send_checkin' ) );
+		add_action( CL_Cron::WEEKLY_ID, function() {
+			$this->send_checkin();
+		} );
 
 		add_action( CL_Settings_API::SETTING_ID . '_after_sanitize_options', array(
 			$this,
@@ -133,7 +135,8 @@ class CL_Admin_Tracking {
 		
 		if ( is_array( $extra_data ) && array() !== $extra_data ) {
 			foreach ( $extra_data as $key => $value ) {
-				$data[ $key ] = $value;
+				$data[ sanitize_key( $key ) ] = is_array( $value ) ?
+					array_map( 'sanitize_text_field', $value ) : sanitize_text_field( $value );
 			}
 		}
 
@@ -197,22 +200,22 @@ single plugin on', Custom_Login_Bootstrap::DOMAIN );
 	 * @param bool $override
 	 * @param array $extra_data
 	 */
-	public function send_checkin( $override = false, array $extra_data = array() ) {
+	private function send_checkin( $override = false, array $extra_data = array() ) {
 		
 		if ( ! $this->tracking_allowed() && ! $override ) {
 			return;
 		}
 
-		// Send a maximum of once per week
+		// Send a maximum of once every three weeks
 		$last_send = $this->get_last_send();
 
-		if ( $last_send && $last_send > strtotime( '-1 week' ) ) {
+		if ( $last_send && $last_send > strtotime( '-3 weeks' ) ) {
 			return;
 		}
 
 		$this->setup_data( $extra_data );
 
-		$response = wp_remote_post( $this->api, array(
+		$response = wp_remote_post( esc_url_raw( $this->api ), array(
 			'method'      => 'POST',
 			'timeout'     => (int) apply_filters( 'cl_wp_remote_post_timeout', 15 ),
 			'redirection' => 5,

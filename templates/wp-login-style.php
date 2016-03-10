@@ -26,7 +26,7 @@ if ( false === ( $css = get_transient( $trans_key ) ) ) {
  * Plugin URI  : https://frosty.media/plugins/custom-login/
  * Version     : $version
  * Author URI  : http://austin.passy.co/
- * Extensions  : https://frosty.media/plugin/tag/custom-login-extension/
+ * Add-on Plugins  : https://frosty.media/plugin/tag/custom-login-extension/
  */\n\n";
 	
 	/* Custom user input */

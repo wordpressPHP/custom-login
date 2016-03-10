@@ -89,6 +89,7 @@
 
             cl_main_group.hide();
             $(document.getElementById(clicked_group)).fadeIn();
+
             e.preventDefault();
         });
 
