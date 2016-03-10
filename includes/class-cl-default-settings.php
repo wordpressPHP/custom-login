@@ -43,6 +43,8 @@ class CL_Default_Settings {
 	 * @see add_settings_section
 	 * @see add_settings_field
 	 * @see register_setting
+	 *
+	 * @link http://wordpress.stackexchange.com/a/100137
 	 */
 	public function admin_init() {
 		global $pagenow;
