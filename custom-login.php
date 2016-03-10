@@ -16,7 +16,7 @@
  * Author URI: http://austin.passy.co
  * Text Domain: custom-login
  * GitHub Plugin URI: https://github.com/thefrosty/custom-login
- * GitHub Branch: master
+ * GitHub Branch: dev
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -122,7 +122,7 @@ if ( ! class_exists( 'Custom_Login_Bootstrap' ) ) {
 			add_action( 'plugins_loaded', array( $this, 'autoload_register' ), 10 );
 			add_action( 'plugins_loaded', array( $this, 'dependency_check' ), 989 );
 			add_action( 'init', array( $this, 'hookup' ), 4 );
-			add_action( 'init', array( $this, 'do_actions' ), 10 );
+			add_action( 'init', array( $this, 'do_actions' ), 8 );
 		}
 
 		/**
