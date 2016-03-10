@@ -45,6 +45,12 @@ class CL_Default_Settings {
 	 * @see register_setting
 	 */
 	public function admin_init() {
+		global $pagenow;
+
+		// Only load the following when we're in the WordPress settings page.
+		if ( empty( $pagenow ) || ! in_array( $pagenow, array( 'options-general.php', 'options.php' ) ) ) {
+			return;
+		}
 
 		// Add the setting option if it doesn't exist.
 		if ( false === get_option( CL_Settings_API::SETTING_ID ) ) {
@@ -111,7 +117,7 @@ class CL_Default_Settings {
 	 */
 	public function sanitize_options( $options ) {
 
-		error_log( print_r( $options, true ) );
+		error_log( 'OPTIONS!! ' . print_r( $options, true ) );
 
 		if ( is_null( $options ) || ! is_array( $options ) ) {
 			return $options;
