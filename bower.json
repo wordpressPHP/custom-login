@@ -1,0 +1,22 @@
+{
+  "name": "custom-login",
+  "description": "A simple way to customize your WordPress wp-login.php screen!",
+  "main": "custom-login.php",
+  "authors": [
+    "thefrosty"
+  ],
+  "license": "GPL-2.0",
+  "homepage": "https://github.com/thefrosty/custom-login",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "devDependencies": {
+    "animate.css": "*",
+    "jquery-sticky": "*",
+    "codemirror": "^5.13.0"
+  }
+}

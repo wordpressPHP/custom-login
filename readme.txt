@@ -8,7 +8,7 @@ Stable tag: trunk
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Custom Login allows you to easily customize your admin login page, works great for client sites!
+Custom Login allows you to easily customize your /wp-login.php page, works great for client sites!
 
 == Description ==
 
@@ -28,11 +28,11 @@ For more information visit the official [Custom Login](https://frosty.media/plug
 
 http://www.youtube.com/watch?v=hZkc-t36xYQ
 
-= Extensions aka "plugins that extend Custom Login" =
+= Add-ons or "plugins that extend Custom Login" =
 
 There are currently 5 premium extensions available, with more coming (suggestions welcome - and *will be offered for free to said user*).
 
-**Extensions available now**
+**Add-ons available now**
 
 * [Stealth Login](https://frosty.media/plugins/custom-login-stealth-login/?utm_source=wordpressorg&utm_medium=custom-login&utm_campaign=readme.txt "Custom Login Stealth Login") - obscure your login URL.
 * [Page Template](https://frosty.media/plugins/custom-login-page-template/?utm_source=wordpressorg&utm_medium=custom-login&utm_campaign=readme.txt "Custom Login Page Template") - add a login form to any WordPress page.
@@ -114,120 +114,19 @@ Custom Login showcase on the [Flickr group](http://flickr.com/groups/custom-logi
 
 == Upgrade Notice ==
 
-= 4.0 =
-Complete rewrite of Custom Login, be sure to run the update script to keep your old settings.
+= 4.0.0 =
+Complete rewrite of Custom Login, be sure to run the update script to keep your existing settings.
 
 == Changelog ==
 
 = Version 4.0 (02/04/16) =
-* [3.x changelog](http://plugins.svn.wordpress.org/custom-login/tags/3.3.2/readme.txt).
-
-= Version 3.2.2 (05/04/15) =
-
-* May the fourth be with you.
-* Cleaned up dashboard JS errors.
-
-= Version 3.2.2 (04/29/15) =
-
-* Update version number.
-* Fix upgrade notice showing when not needed.
-* Add class 'notice' and 'is-dismissible' to notice.
-* Cleanup admin dashboard empty ob_get_clean() notice.
-
-= Version 3.2.1 (04/20/15) =
-
-* Fix: XSS security flaw.
-* Fix: Settings page not showing. (Fixes Issue: [#6](https://github.com/thefrosty/custom-login/pull/6) /ht @[DrewAPicture](https://github.com/DrewAPicture).
-
-= Version 3.2 (02/09/15) =
-
-* Message: Celebrate 500,000 downloads. Visit the settings page or [this post](https://frosty.media/?p=26056) to get any extension for free! *Restrictions may apply.
-* Notice: Introduce Custom Login [Style Pack #1](https://frosty.media/plugins/custom-login-style-pack-1)
-* Fix: Possible headers_sent() error in some installations [forum](https://wordpress.org/support/topic/update-php-errors-dashboard-errors?replies=2).
-* Fix: Setting update script might uncheck (turn off) the activate switch.
-* Fix: CSS `#login form` box shadow not accepting opacity settings.
-* Update: Default 'activate' setting to 'on'.
-* Update: "Save Changes" submit button to "Save {Tab Title}".
-* Update: Allow Custom (CSS/HTML/JS) textareas to expand up to 30 lines.
-* Update: admin.css
-* Update: admin.js
-* Add: animate.css Licened under MIT.
-* Add: Global 'active' toggle switch.
-
-= Version 3.1 (01/20/15) =
-
-* Update: Disable auth cookie expiration function.
-* Update: All prefixed 'cl_'  to 'custom_login_'.
-* Update: Spelling error 'sanitize'.
-* Update: login.css uses core stylesheet to avoid possible conflicts with checkboxes and browser support.
-* Tweak: Speed imporovments.
-* Add: CL_Common::is_settings_page().
-* Add: Dashboard widget (off be default).
-
-= Version 3.0.8 (01/14/15) =
-
-* Add: Auth timout setting when remember me is checked and not.
-* Add: filter to wp_remote_get timeout. Use: `cl_wp_remote_get_timeout` to return (int) value, defaults to 15.
-* Update: `auth_cookie_expiration` function.
-* Update: Removed `post_password_expires` setting in favor of `auth_timeout` &amp; `auth_timeout_remember`.
-* Fix: Possible white screen issue, for users who updated to 3.0.7 before a file was uploaded. (version bump).
-
-= Version 3.0.7 (01/13/15) =
-
-* Update: ace.js to build `20.12.14`.
-* Update: admin.css.
-* Update: Extenstions HTML and settings page location.
-* Update: Sanatize the `auth_cookie_expiration` setting with a positive integer.
-* Tweak: Remove false positive files from malware scanners; ace editor php.js [forum](https://wordpress.org/support/topic/wordfence-alerta?).
-* Tweak: Make sure `auth_cookie_expiration` is greater than 0.
-
-= Version 3.0.6 (01/13/15) =
-
-* Bug: Misspelled variable returned on `auth_cookie_expiration` caused instant user logout.
-
-= Version 3.0.5 (01/13/15) =
-
-* Add: Update uninstall.php with all options to delete.
-* Add: Disable lost password reset function option.
-* Update: Settings prefix with global definition.
-* Update: Add missing auth expiration function for setting.
-* Fix: Hide tracking notice globaly if admin notices are turned off.
-* Tweak: Update the hide_wp_logo description since Custom Login removes the WP logo by default.
-* Tweak: Better output of update notification on settings page.
-* Tweak: Update input fields that are integers to a 'number' input type.
-* Tweak: Update readme dates to 2015. :)
-
-= Version 3.0.4 (01/12/15) =
-
-* Tweak: Add manual update link on settings page if new settings are empty and old settings exist.
-* Fix: Make sure tracking is set to "on" before sending.
-
-= Version 3.0.3 (01/12/15) =
-
-* Fix: Add missing "Remove WP Logo" setting.
-* Fix: When "activate" isn't checked disable settings output.
-* Fix: foreach error. When `get_editable_roles` fails to return an array. [forum](https://wordpress.org/support/topic/invalid-argument-supplied-for-foreach-error-line-in-wp-dashboard?replies=2#post-6427631)
-* Fix: On Logo "insert" getting called on background image insert.
-* Tweak: Update chosen JS to version 1.3.0.
-
-= Version 3.0.2 (01/12/15) =
-
-* Fix: Logo background size width &amp; height settings not transfering over in upgrade process.
-* Fix: Checking "Remove lost password text" removes the text instead of the other way around. [forum](https://wordpress.org/support/topic/lost-your-password-1)
-
-= Version 3.0.1 (01/11/15) =
-
-* New: Add force width option to force width on h1 logo wrapper.
-* Bug: Change sanitization of all integer fields to 'int' vs 'absint' to allow empty or no value.
-* Bug: Remove is_int function on Logo width and height style output.
-* Tweak: On Logo upload and "insert" update the width and height input settings fields for logo with the image size.
-* Tweak: Change CSS rule(s) from `#login h1 a` to `.login h1 a`.
+* [3.x changelog](http://plugins.svn.wordpress.org/custom-login/tags/3.3.5/readme.txt).
 
 = Version 3.0.0 (12/01/14) =
 
-_REQUIRES WordPress 3.9 or later_
+_REQUIRES WordPress 4.4 or later_
 
 * New: Complete rewrite.
 * New: Settings page UI update, now matches your WordPress admin color scheme.
 * New: Extensions installer moved to sparate settings page (hidden).
-* New: Removed version [2.x changelog](http://plugins.svn.wordpress.org/custom-login/tags/2.4/readme.txt).
+* Removed version [2.x changelog](http://plugins.svn.wordpress.org/custom-login/tags/2.4/readme.txt).

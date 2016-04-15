@@ -125,7 +125,6 @@ class CL_Scripts_Styles {
 		foreach ( $prefixes as $prefix ) {
 			$output .= self::trailingsemicolonit( $prefix . $input . ': ' . esc_attr( $option ) );
 		}
-		$output .= self::trailingsemicolonit( $prefix . $input . ': ' . esc_attr( $option ) );
 		
 		return $output;
 	}

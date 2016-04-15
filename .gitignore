@@ -1,6 +1,7 @@
 # Build and Release Folders
 bin-debug/
 bin-release/
+bower_components/
 
 # Numerous always-ignore extensions
 *.diff

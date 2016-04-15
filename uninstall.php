@@ -29,7 +29,7 @@ foreach ( $all_user_ids as $user_id ) {
 }
 
 // Delete all announcement options and transients
-delete_transient( CL_Common::get_transient_key( 'announcement' ) );			
+delete_transient( CL_Common::get_transient_key( 'announcement' ) );
 delete_option( CUSTOM_LOGIN_OPTION . '_announcement_message' );
 
 // Delete tracking options
