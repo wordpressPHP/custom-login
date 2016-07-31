@@ -6,7 +6,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Class CL_Admin_Dashboard
  */
-class CL_Admin_Dashboard {
+class CL_Admin_Dashboard implements CL_WordPress_Hooks {
 
 	/**
 	 * @var string

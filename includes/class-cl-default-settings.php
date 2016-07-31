@@ -204,7 +204,7 @@ class CL_Default_Settings {
 	/**
 	 * @return array
 	 */
-	public static function get_registered_settings_sections() {
+	public function get_registered_settings_sections() {
 
 		$sections = array(
 			array(
@@ -235,7 +235,7 @@ class CL_Default_Settings {
 	/**
 	 * @return array
 	 */
-	public static function get_registered_settings_fields() {
+	public function get_registered_settings_fields() {
 
 		/**
 		 * General Settings Section

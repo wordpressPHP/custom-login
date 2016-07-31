@@ -6,7 +6,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Class CL_Cron
  */
-class CL_Cron {
+class CL_Cron implements CL_WordPress_Hooks {
 
 	const DAILY_ID = 'custom_login_daily_scheduled_events';
 	const WEEKLY_ID = 'custom_login_weekly_scheduled_events';

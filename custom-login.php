@@ -38,7 +38,7 @@ if ( ! class_exists( 'Custom_Login_Bootstrap' ) ) {
          *
          * @var string
          */
-        const VERSION = '4.0.0-20160414';
+        const VERSION = '4.0.0-20160731';
 
         /**
          * Plugin text domain
@@ -135,31 +135,31 @@ if ( ! class_exists( 'Custom_Login_Bootstrap' ) ) {
         }
 
         /**
+         * Run a dependency check during initial load.
+         */
+        public function dependency_check() {
+            new CL_Dependency_Check;
+        }
+
+        /**
          * Setup our connected hooks.
          *      -It's just a hookup
          */
         public function hookup() {
-            CL_Hookup::add_hooks();
-        }
-
-        /**
-         * Run a dependency check during initial load.
-         */
-        public function dependency_check() {
-            new CL_Dependency_Check();
+            new CL_Hookup( new CL_Init );
         }
 
         /**
          * Create our custom action hooks.
-         * These actions are called on the `init` hook; priority '10'.
+         * These actions are called on the `init` hook; priority '8'.
          */
         public function do_actions() {
+
+            do_action( 'custom_login_init', CL_Common::is_wp_login_php() );
 
             if ( is_admin() ) {
                 do_action( 'custom_login_admin_init' );
             }
-
-            do_action( 'custom_login_init', CL_Common::is_wp_login_php() );
         }
 
         /**

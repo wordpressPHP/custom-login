@@ -54,5 +54,4 @@ class CL_Dependency_Check {
 //
 //		deactivate_plugins( CUSTOM_LOGIN_BASENAME );
 	}
-	
 }

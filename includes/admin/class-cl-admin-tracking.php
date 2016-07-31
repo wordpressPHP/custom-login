@@ -9,7 +9,7 @@ defined( 'ABSPATH' ) || exit;
  * @since 3.0.0
  * @updated 4.0.0
  */
-class CL_Admin_Tracking {
+class CL_Admin_Tracking implements CL_WordPress_Hooks  {
 
 	const SETTING_ID = 'custom_login_hide_tracking_notice';
 

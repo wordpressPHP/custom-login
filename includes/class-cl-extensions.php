@@ -6,7 +6,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Class CL_Extensions
  */
-class CL_Extensions {
+class CL_Extensions implements CL_WordPress_Hooks {
 
 	/**
 	 * @var string

@@ -6,7 +6,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Class CL_Admin_Settings_Import_Export
  */
-class CL_Admin_Settings_Import_Export {
+class CL_Admin_Settings_Import_Export implements CL_WordPress_Hooks {
 
 	private $setting_id;
 	private $ID;

@@ -6,7 +6,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Class CL_WP_Login
  */
-class CL_WP_Login {
+class CL_WP_Login implements CL_WordPress_Hooks {
 
     /**
      * @var array

@@ -1,168 +1,164 @@
 (function ($, undefined) {
 
-    $(document).ready(function () {
+      /**
+       * Global variables
+       *
+       * @var string
+       */
+      var $this,
+          activetab,
+          clicked_group,
+          form;
 
-        /**
-         * Global variables
-         *
-         * @var string
-         */
-        var $this,
-            activetab,
-            clicked_group,
-            form;
+      /**
+       * @type {*|HTMLElement}
+       */
+      var cl_container = $('.cl-container'),
+          cl_header = $('.cl-header'),
+          cl_save = $('input[id="cl_save"]');
 
-        /**
-         * @type {*|HTMLElement}
-         */
-        var cl_container = $('.cl-container'),
-            cl_header = $('.cl-header'),
-            cl_save = $('input[id="cl_save"]');
+      /**
+       * Match the header with the WP-admin user color selection.
+       */
+      cl_header.css('background-color', $('#adminmenuwrap').css('background-color'));
+      cl_header.contrastColor();
+      cl_container.addClass('loaded');
 
-        /**
-         * Match the header with the WP-admin user color selection.
-         */
-        cl_header.css('background-color', $('#adminmenuwrap').css('background-color'));
-        cl_header.contrastColor();
-        cl_container.addClass('loaded');
+      /**
+       *** Active *************************
+       ************************************
+       ************************************
+       */
+      //$('span.tgl_input').replaceWith($('input[id="custom_login_settings[general][active]"]').clone());
+      //
+      //$(document).on('click change', 'input[id="custom_login_settings[general][active]"]', function () {
+      //    $('input[id="custom_login_settings[general][active]"]').prop('checked', this.checked);
+      //});
 
-        /**
-         *** Active *************************
-         ************************************
-         ************************************
-         */
-        //$('span.tgl_input').replaceWith($('input[id="custom_login_settings[general][active]"]').clone());
-        //
-        //$(document).on('click change', 'input[id="custom_login_settings[general][active]"]', function () {
-        //    $('input[id="custom_login_settings[general][active]"]').prop('checked', this.checked);
-        //});
+      /**
+       *** Sidebar Nav + Main Group *******
+       ************************************
+       ************************************
+       */
+      var cl_main_group = $('.cl-main .group'),
+          cl_sections_menu = $('.cl-sections-menu');
 
-        /**
-         *** Sidebar Nav + Main Group *******
-         ************************************
-         ************************************
-         */
-        var cl_main_group = $('.cl-main .group'),
-            cl_sections_menu = $('.cl-sections-menu');
+      cl_main_group.hide();
 
-        cl_main_group.hide();
+      if ('undefined' !== typeof localStorage) {
+          activetab = localStorage.getItem('activetab');
+      }
 
-        if ('undefined' !== typeof localStorage) {
-            activetab = localStorage.getItem('activetab');
-        }
+      if (activetab != '' && $(document.getElementById(activetab)).length) {
+          $(document.getElementById(activetab)).fadeIn();
+          cl_save.val('Save ' + $('a[data-tab-id="' + activetab + '"]').text());
+      }
+      else {
+          var first_group = cl_main_group.first();
+          first_group.fadeIn();
+          cl_save.val('Save ' + $('.cl-sidebar .cl-sections-menu li:first a').text());
+      }
 
-        if (activetab != '' && $(document.getElementById(activetab)).length) {
-            $(document.getElementById(activetab)).fadeIn();
-            cl_save.val('Save ' + $('a[data-tab-id="' + activetab + '"]').text());
-        }
-        else {
-            var first_group = cl_main_group.first();
-            first_group.fadeIn();
-            cl_save.val('Save ' + $('.cl-sidebar .cl-sections-menu li:first a').text());
-        }
+      if (activetab != '' && cl_sections_menu.find('a[data-tab-id="' + activetab + '"]').length) {
+          cl_sections_menu.find('a[data-tab-id="' + activetab + '"]').addClass('active');
+      }
+      else {
+          cl_sections_menu.find('a').first().addClass('active');
+      }
+      // on.click event
+      cl_sections_menu.find('a').on('click', function (e) {
+          $this = $(this);
 
-        if (activetab != '' && cl_sections_menu.find('a[data-tab-id="' + activetab + '"]').length) {
-            cl_sections_menu.find('a[data-tab-id="' + activetab + '"]').addClass('active');
-        }
-        else {
-            cl_sections_menu.find('a').first().addClass('active');
-        }
-        // on.click event
-        cl_sections_menu.find('a').on('click', function (e) {
-            $this = $(this);
+          if ('javascript:;' !== $this.attr('href')) {
+              if ('undefined' !== typeof localStorage) {
+                  localStorage.setItem('activetab', '');
+              }
+              return true;
+          }
 
-            if ('javascript:;' !== $this.attr('href')) {
-                if ('undefined' !== typeof localStorage) {
-                    localStorage.setItem('activetab', '');
-                }
-                return true;
-            }
+          clicked_group = $this.data('tab-id');
+          cl_save.val('Save ' + $('a[data-tab-id="' + clicked_group + '"]').text());
+          cl_sections_menu.find('a').removeClass('active');
+          $this.addClass('active').blur();
 
-            clicked_group = $this.data('tab-id');
-            cl_save.val('Save ' + $('a[data-tab-id="' + clicked_group + '"]').text());
-            cl_sections_menu.find('a').removeClass('active');
-            $this.addClass('active').blur();
+          if ('undefined' !== typeof localStorage) {
+              localStorage.setItem('activetab', clicked_group);
+          }
 
-            if ('undefined' !== typeof localStorage) {
-                localStorage.setItem('activetab', clicked_group);
-            }
+          cl_main_group.hide();
+          $(document.getElementById(clicked_group)).fadeIn();
 
-            cl_main_group.hide();
-            $(document.getElementById(clicked_group)).fadeIn();
+          e.preventDefault();
+      });
 
-            e.preventDefault();
-        });
+      /**
+       *** Sticky *************************
+       ************************************
+       ************************************
+       */
+      var sticky = $('#cl-sticky'),
+          wpadminbar = $('#wpadminbar');
 
-        /**
-         *** Sticky *************************
-         ************************************
-         ************************************
-         */
-        var sticky = $('#cl-sticky'),
-            wpadminbar = $('#wpadminbar');
+      sticky.sticky({
+          topSpacing: wpadminbar.length ? wpadminbar.height() : 0,
+          getWidthFrom: cl_container
+      });
 
-        sticky.sticky({
-            topSpacing: wpadminbar.length ? wpadminbar.height() : 0,
-            getWidthFrom: cl_container
-        });
+      $(window).scroll(function () {
+          if ($(window).scrollTop() + $(window).height() > $(document).height() - 200) {
+              sticky.hide();
+          } else {
+              sticky.show();
+          }
+      });
 
-        $(window).scroll(function () {
-            if ($(window).scrollTop() + $(window).height() > $(document).height() - 200) {
-                sticky.hide();
-            } else {
-                sticky.show();
-            }
-        });
+      /**
+       *** Toggles ************************
+       ************************************
+       ************************************
+       */
+      $('[data-toggle]').each(function (index, element) {
+          $(element).on('click', function () {
+              $($(element).data('toggle')).slideToggle('fast');
+          });
+      });
 
-        /**
-         *** Toggles ************************
-         ************************************
-         ************************************
-         */
-        $('[data-toggle]').each(function (index, element) {
-            $(element).on('click', function () {
-                $($(element).data('toggle')).slideToggle('fast');
-            });
-        });
+      /**
+       *** Form Submit ********************
+       ************************************
+       ************************************
+       */
+      $(document.body).on('click', '#cl-sticky input[id="cl_save"]', function (e) {
+          $this = $(this);
+          form = $('.cl-main > div.group:visible > form');
+          $this.attr('form', form.attr('id'));
+          form.submit();
+      }); //*/
 
-        /**
-         *** Form Submit ********************
-         ************************************
-         ************************************
-         */
-        $(document.body).on('click', '#cl-sticky input[id="cl_save"]', function (e) {
-            $this = $(this);
-            form = $('.cl-main > div.group:visible > form');
-            $this.attr('form', form.attr('id'));
-            form.submit();
-        }); //*/
+      /**
+       *** CodeMirror *********************
+       ************************************
+       ************************************
+       */
+      if ('undefined' !== typeof CodeMirror) {
+          $('textarea').each(function () {
+              if ($(this).data('codemirror')) {
+                  CodeMirror.fromTextArea(document.getElementById($(this).attr('id')), {
+                      lineNumbers: true,
+                      mode: $(this).data('type') ? $(this).data('type') : 'htmlmixed'
+                  });
+              }
+          });
+      }
 
-        /**
-         *** CodeMirror *********************
-         ************************************
-         ************************************
-         */
-        if ('undefined' !== typeof CodeMirror) {
-            $('textarea').each(function () {
-                if ($(this).data('codemirror')) {
-                    CodeMirror.fromTextArea(document.getElementById($(this).attr('id')), {
-                        lineNumbers: true,
-                        mode: $(this).data('type') ? $(this).data('type') : 'htmlmixed'
-                    });
-                }
-            });
-        }
-
-        /**
-         *** Callback Fields Types **********
-         ************************************
-         ************************************
-         */
-        $('div.field-type-html-break').each(function () {
-            $(this).parents('tr').find('th').wrapInner('<h4/>');
-        });
-
-    }); // (document)
+      /**
+       *** Callback Fields Types **********
+       ************************************
+       ************************************
+       */
+      $('div.field-type-html-break').each(function () {
+          $(this).parents('tr').find('th').wrapInner('<h4/>');
+      });
 
     /**
      * Helper function to create contracting color.

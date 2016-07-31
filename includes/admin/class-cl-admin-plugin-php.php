@@ -6,7 +6,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Class CL_Admin_Notices
  */
-class CL_Admin_Plugin_PHP {
+class CL_Admin_Plugin_PHP implements CL_WordPress_Hooks {
 
 	/**
 	 * Add class hooks.
