@@ -1,12 +1,14 @@
 <?php
 
+use CL_Interface_WordPress_Hooks as WordPress_Hooks;
+
 // Exit if accessed directly
 defined( 'ABSPATH' ) || exit;
 
 /**
  * Class CL_WP_Login
  */
-class CL_WP_Login implements CL_WordPress_Hooks {
+class CL_WP_Login implements WordPress_Hooks {
 
     /**
      * @var array

@@ -1,5 +1,7 @@
 <?php
 
+use CL_Interface_WordPress_Hooks as WordPress_Hooks;
+
 /**
  * Class Init
  */
@@ -15,11 +17,11 @@ class CL_Init implements IteratorAggregate {
     /**
      * Adds an object to $container property
      *
-     * @param CL_WordPress_Hooks $object
+     * @param \CL_Interface_WordPress_Hooks $object
      *
      * @return $this
      */
-    public function add( CL_WordPress_Hooks $object ) {
+    public function add( WordPress_Hooks $object ) {
         $this->plugin_components[] = $object;
 
         return $this;
@@ -32,7 +34,7 @@ class CL_Init implements IteratorAggregate {
     public function initialize() {
 
         foreach ( $this as $container_object ) {
-            if ( $container_object instanceof CL_WordPress_Hooks ) {
+            if ( $container_object instanceof WordPress_Hooks ) {
                 $container_object->add_hooks();
             }
         }

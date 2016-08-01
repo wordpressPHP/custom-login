@@ -1,12 +1,14 @@
 <?php
 
+use CL_Interface_WordPress_Hooks as WordPress_Hooks;
+
 // Exit if accessed directly
 defined( 'ABSPATH' ) || exit;
 
 /**
  * Class CL_Cron
  */
-class CL_Cron implements CL_WordPress_Hooks {
+class CL_Cron implements WordPress_Hooks {
 
 	const DAILY_ID = 'custom_login_daily_scheduled_events';
 	const WEEKLY_ID = 'custom_login_weekly_scheduled_events';

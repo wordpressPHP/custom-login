@@ -1,5 +1,6 @@
 <?php
 
+use CL_Interface_WordPress_Hooks as WordPress_Hooks;
 use Custom_Login_Bootstrap as Custom_Login;
 
 /**
@@ -8,7 +9,7 @@ use Custom_Login_Bootstrap as Custom_Login;
  *
  * @link http://codex.wordpress.org/Theme_Customization_API
  */
-class CL_Login_Customizer implements CL_WordPress_Hooks {
+class CL_Login_Customizer implements WordPress_Hooks {
 
 	static $setting_id = 'design';
 

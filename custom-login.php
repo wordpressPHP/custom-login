@@ -1,4 +1,5 @@
 <?php
+//@formatter:off
 /**
  * Custom Login
  *
@@ -15,13 +16,13 @@
  * Author: Austin Passy
  * Author URI: http://austin.passy.co
  * Text Domain: custom-login
- * GitHub Plugin URI: https://github.com/thefrosty/custom-login
- * GitHub Branch: dev
+ * GitHub Plugin URI: https://github.com/thefrosty/custom-login GitHub Branch: dev
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  */
+//@formatter:on
 
 // Exit if accessed directly
 defined( 'ABSPATH' ) || exit;
@@ -146,7 +147,7 @@ if ( ! class_exists( 'Custom_Login_Bootstrap' ) ) {
          *      -It's just a hookup
          */
         public function hookup() {
-            new CL_Hookup( new CL_Init );
+            ( new CL_Hookup( new CL_Init ) )->add_hooks();
         }
 
         /**
@@ -187,10 +188,16 @@ if ( ! class_exists( 'Custom_Login_Bootstrap' ) ) {
             $class_name = $this->sanitize_class_file_name( $class_name );
 
             if ( false !== strpos( $class_name, 'cl-admin' ) ) {
+                // WordPress Admin classes
                 $file = self::dir_path( "includes/admin/class-{$class_name}.php" );
             } elseif ( false !== strpos( $class_name, 'cl-customize' ) ) {
+                // WordPress Customizer classes
                 $file = self::dir_path( "includes/customize/class-{$class_name}.php" );
+            } elseif ( false !== strpos( $class_name, 'cl-interface' ) ) {
+                // Custom Login Interfaces
+                $file = self::dir_path( "includes/interfaces/{$class_name}.php" );
             } else {
+                // Custom Login Classes
                 $file = self::dir_path( "includes/class-{$class_name}.php" );
             }
 

@@ -1,12 +1,14 @@
 <?php
 
+use CL_Interface_WordPress_Hooks as WordPress_Hooks;
+
 // Exit if accessed directly
 defined( 'ABSPATH' ) || exit;
 
 /**
  * Class CL_Extensions
  */
-class CL_Extensions implements CL_WordPress_Hooks {
+class CL_Extensions implements WordPress_Hooks {
 
 	/**
 	 * @var string

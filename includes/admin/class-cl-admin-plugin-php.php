@@ -1,12 +1,14 @@
 <?php
 
+use CL_Interface_WordPress_Hooks as WordPress_Hooks;
+
 // Exit if accessed directly
 defined( 'ABSPATH' ) || exit;
 
 /**
  * Class CL_Admin_Notices
  */
-class CL_Admin_Plugin_PHP implements CL_WordPress_Hooks {
+class CL_Admin_Plugin_PHP implements WordPress_Hooks {
 
 	/**
 	 * Add class hooks.

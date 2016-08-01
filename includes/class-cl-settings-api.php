@@ -1,9 +1,9 @@
 <?php
 
+use Custom_Login_Bootstrap as Custom_Login;
+
 // Exit if accessed directly
 defined( 'ABSPATH' ) || exit;
-
-use Custom_Login_Bootstrap as Custom_Login;
 
 /**
  * Class CL_Settings_API
@@ -46,12 +46,6 @@ class CL_Settings_API {
 		}
 
 		return self::$instance;
-	}
-
-	/**
-	 * CL_Settings_API constructor.
-	 */
-	private function __construct() {
 	}
 
 	/**
@@ -402,11 +396,11 @@ class CL_Settings_API {
 	/**
 	 * @param null $data
 	 *
-	 * @return array|null
+	 * @return null|array
 	 */
-	private function maybe_build_data_args( $data = null ) {
+	private function maybe_build_data_args( $data ) {
 
-		if ( defined( 'DOING_AJAX' ) && DOING_AJAX && ! empty( $_POST ) ) {
+		if ( $_SERVER['REQUEST_METHOD'] === 'POST' && ! empty( $_POST ) && ( defined( 'DOING_AJAX' ) && DOING_AJAX ) ) {
 			$data = array_map( 'sanitize_text_field', $_POST );
 		}
 

@@ -1,5 +1,7 @@
 <?php
 
+use CL_Interface_WordPress_Hooks as WordPress_Hooks;
+
 // Exit if accessed directly
 defined( 'ABSPATH' ) || exit;
 
@@ -9,7 +11,7 @@ defined( 'ABSPATH' ) || exit;
  * @since 3.0.0
  * @updated 4.0.0
  */
-class CL_Admin_Tracking implements CL_WordPress_Hooks  {
+class CL_Admin_Tracking implements WordPress_Hooks  {
 
 	const SETTING_ID = 'custom_login_hide_tracking_notice';
 

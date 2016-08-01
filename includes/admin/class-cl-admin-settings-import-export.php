@@ -1,12 +1,14 @@
 <?php
 
+use CL_Interface_WordPress_Hooks as WordPress_Hooks;
+
 // Exit if accessed directly
 defined( 'ABSPATH' ) || exit;
 
 /**
  * Class CL_Admin_Settings_Import_Export
  */
-class CL_Admin_Settings_Import_Export implements CL_WordPress_Hooks {
+class CL_Admin_Settings_Import_Export implements WordPress_Hooks {
 
 	private $setting_id;
 	private $ID;

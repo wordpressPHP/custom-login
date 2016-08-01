@@ -56,7 +56,7 @@ class CL_Hookup {
             ->add( new CL_WP_Login )
             ->initialize();
 
-		self::setup_settings_api();
+		$this->setup_settings_api();
 	}
 
 	/**
