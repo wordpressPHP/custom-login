@@ -239,8 +239,6 @@ class Frosty_Media_Remote_Install_Client {
 			$request = json_decode( wp_remote_retrieve_body( $request ) );
 			$request = maybe_unserialize( $request );
 
-			error_log( print_r( $request, true ) );
-
 			if ( $request->download == "free" ) {
 				$response = "0";
 			} elseif ( $request->download == "not-free" ) {

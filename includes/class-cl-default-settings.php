@@ -119,7 +119,7 @@ class CL_Default_Settings {
 	 */
 	public function sanitize_options( $options ) {
 
-		error_log( 'OPTIONS!! ' . print_r( $options, true ) );
+//		error_log( 'OPTIONS!! ' . print_r( $options, true ) );
 
 		if ( is_null( $options ) || ! is_array( $options ) ) {
 			return $options;

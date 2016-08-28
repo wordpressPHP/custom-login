@@ -9,14 +9,14 @@ defined( 'ABSPATH' ) || exit;
 class CL_Hookup {
 
     /**
-     * @var CL_Init
+     * @var CL_Init $cl_init
      */
     protected $cl_init;
 
     /**
      * CL_Hookup constructor.
      *
-     * @param \CL_Init $cl_init
+     * @param CL_Init $cl_init
      */
     public function __construct( CL_Init $cl_init ) {
         $this->cl_init = $cl_init;
@@ -30,9 +30,8 @@ class CL_Hookup {
 	 *      the is_admin() condition is met.
 	 */
 	public function add_hooks() {
-
-		add_action( 'custom_login_init', array( $this, 'init' ) );
-		add_action( 'custom_login_admin_init', array( $this, 'admin_init' ) );
+		add_action( Custom_Login_Bootstrap::INIT_ACTION, array( $this, 'init' ) );
+		add_action( Custom_Login_Bootstrap::INIT_ACTION_ADMIN, array( $this, 'admin_init' ) );
 	}
 
 	/**
