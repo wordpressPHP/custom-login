@@ -13,48 +13,27 @@ if ( ! class_exists( 'Custom_Login_Bootstrap', true ) ) {
         const INIT_ACTION = 'custom_login_init';
         const INIT_ACTION_ADMIN = 'custom_login_init_admin';
 
-        /**
-         * @var string $file
-         */
+        /** @var string $file */
         protected $file;
 
-        /**
-         * @var string $version
-         */
+        /** @var string $version */
         protected $version;
+
+        /** @var CL_Injector $cl_injector */
+        protected $cl_injector;
 
         /**
          * Custom_Login_Bootstrap constructor.
          *
-         * @param string $_file
-         * @param string $_version
+         * @param string $file magic file constant
+         * @param string $version Custom Login version
          */
-        public function __construct( $_file, $_version ) {
-            $this->file    = $_file;
-            $this->version = $_version;
+        public function __construct( $file, $version ) {
+            $this->file    = $file;
+            $this->version = $version;
             $this->setup_constants();
-            $this->add_actions();
-        }
-
-        /**
-         * Setup plugin constants.
-         */
-        private function setup_constants() {
-            defined( 'CUSTOM_LOGIN_VERSION' ) || define( 'CUSTOM_LOGIN_VERSION', $this->version );
-            defined( 'CUSTOM_LOGIN_FILE' ) || define( 'CUSTOM_LOGIN_FILE', $this->file );
-            defined( 'CUSTOM_LOGIN_DIR' ) || define( 'CUSTOM_LOGIN_DIR', plugin_dir_path( $this->file ) );
-            defined( 'CUSTOM_LOGIN_URL' ) || define( 'CUSTOM_LOGIN_URL', plugin_dir_url( $this->file ) );
-            defined( 'CUSTOM_LOGIN_BASENAME' ) || define( 'CUSTOM_LOGIN_BASENAME', plugin_basename( $this->file ) );
-        }
-
-        /**
-         * Setup the base action hooks.
-         */
-        private function add_actions() {
-            add_action( 'plugins_loaded', array( $this, 'autoload_register' ), 10 );
-            add_action( 'plugins_loaded', array( $this, 'dependency_check' ), 989 );
-            add_action( 'init', array( $this, 'hookup' ), 4 );
-            add_action( 'init', array( $this, 'do_actions' ), self::INIT_PRIORITY );
+            $this->load_dependency_injector();
+            $this->add_hooks();
         }
 
         /**
@@ -68,7 +47,7 @@ if ( ! class_exists( 'Custom_Login_Bootstrap', true ) ) {
          * Run a dependency check during initial load.
          */
         public function dependency_check() {
-            new CL_Dependency_Check;
+            $this->cl_injector->get_cl_dependency_check()->init();
         }
 
         /**
@@ -76,7 +55,7 @@ if ( ! class_exists( 'Custom_Login_Bootstrap', true ) ) {
          *      ...It's just a hookup
          */
         public function hookup() {
-            ( new CL_Hookup( new CL_Init ) )->add_hooks();
+            $this->cl_injector->get_cl_hookup()->add_hooks();
         }
 
         /**
@@ -151,6 +130,34 @@ if ( ! class_exists( 'Custom_Login_Bootstrap', true ) ) {
          */
         private function sanitize_class_file_name( $class_name ) {
             return str_replace( '_', '-', strtolower( $class_name ) );
+        }
+
+        /**
+         * Setup plugin constants.
+         */
+        private function setup_constants() {
+            defined( 'CUSTOM_LOGIN_VERSION' ) || define( 'CUSTOM_LOGIN_VERSION', $this->version );
+            defined( 'CUSTOM_LOGIN_FILE' ) || define( 'CUSTOM_LOGIN_FILE', $this->file );
+            defined( 'CUSTOM_LOGIN_DIR' ) || define( 'CUSTOM_LOGIN_DIR', plugin_dir_path( $this->file ) );
+            defined( 'CUSTOM_LOGIN_URL' ) || define( 'CUSTOM_LOGIN_URL', plugin_dir_url( $this->file ) );
+            defined( 'CUSTOM_LOGIN_BASENAME' ) || define( 'CUSTOM_LOGIN_BASENAME', plugin_basename( $this->file ) );
+        }
+
+        /**
+         * Instantiate our dependency injector object.
+         */
+        private function load_dependency_injector() {
+            $this->cl_injector = new CL_Injector( new CL_Dependency_Check, new CL_Hookup( new CL_Init ) );
+        }
+
+        /**
+         * Setup the base action hooks.
+         */
+        private function add_hooks() {
+            add_action( 'plugins_loaded', array( $this, 'autoload_register' ), 10 );
+            add_action( 'plugins_loaded', array( $this, 'dependency_check' ), 989 );
+            add_action( 'init', array( $this, 'hookup' ), 4 );
+            add_action( 'init', array( $this, 'do_actions' ), self::INIT_PRIORITY );
         }
     }
 }

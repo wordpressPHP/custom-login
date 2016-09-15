@@ -8,11 +8,9 @@ class CL_Dependency_Check {
     const MIN_PHP_VERSION = '5.3.0';
 
     /**
-     * CL_Dependency_Check constructor.
-     *
      * @throws CL_Exception_Invalid_Version
      */
-    public function __construct() {
+    public function init() {
         try {
             if ( $this->is_not_min_version() ) {
                 throw new CL_Exception_Invalid_Version(

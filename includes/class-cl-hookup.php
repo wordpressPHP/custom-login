@@ -14,6 +14,11 @@ class CL_Hookup {
     protected $cl_init;
 
     /**
+     * @var CL_Injector $cl_injector
+     */
+    protected $cl_injector;
+
+    /**
      * CL_Hookup constructor.
      *
      * @param CL_Init $cl_init
