@@ -6,9 +6,9 @@
   "license": "GPLv2 or later",
   "authors": [
     {
-      "name" : "Austin Passy",
-      "email" : "austin@frosty.media",
-      "homepage" : "http://austin.passy.co"
+      "name": "Austin Passy",
+      "email": "austin@passy.co",
+      "homepage": "https://austin.passy.co"
     }
   ],
   "require": {

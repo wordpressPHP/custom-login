@@ -1,21 +1,48 @@
 <?php
 
-$content = sprintf( '%s: <a href="https://wordpress.org/support/view/plugin-reviews/custom-login" class="star-rating" target="_blank">
-			<i class="dashicons dashicons-star-filled"></i>
-			<i class="dashicons dashicons-star-filled"></i>
-			<i class="dashicons dashicons-star-filled"></i>
-			<i class="dashicons dashicons-star-filled"></i>
-			<i class="dashicons dashicons-star-filled"></i>
-			</a>', _x( 'Rate', 'Rate; as in rate this plugin.', Custom_Login_Bootstrap::DOMAIN ) );
+use PassyCo\CustomLogin\CustomLogin;
+use PassyCo\CustomLogin\Api\SettingsApi;
 
-$content .= '<ul>';
-$content .= sprintf( '<li>%s: <a href="http://austin.passy.co" target="_blank">Austin Passy</a></li>', _x( 'Author', 'the author of this plugin', Custom_Login_Bootstrap::DOMAIN ) );
-$content .= '<li>Twitter: <a href="https://twitter.com/TheFrosty" target="_blank">TheFrosty</a></li>';
-$content .= '</ul>';
+// Return if we don't have the correct object
+if ( ! isset( $object ) || ! ( $object instanceof SettingsApi ) ) {
+    return;
+}
 
-$content .= sprintf( __( 'If you have suggestions for a new extension, feel free to submit an enhancement request on
-<a href="%s" target="_blank">GitHub</a>.', Custom_Login_Bootstrap::DOMAIN ),
-	'https://github.com/thefrosty/custom-login/issues'
+ob_start();
+?>
+    <a href="https://wordpress.org/support/view/plugin-reviews/custom-login"
+       class="star-rating"
+       target="_blank">
+        <i class="dashicons dashicons-star-filled"></i>
+        <i class="dashicons dashicons-star-filled"></i>
+        <i class="dashicons dashicons-star-filled"></i>
+        <i class="dashicons dashicons-star-filled"></i>
+        <i class="dashicons dashicons-star-filled"></i>
+    </a>
+    <?php echo esc_html_x( 'Rate', 'Rate; as in rate this plugin.', CustomLogin::DOMAIN ); ?>
+
+    <ul>
+        <li>
+            <?php echo esc_html_x( 'Author:', 'Author or creator', CustomLogin::DOMAIN ); ?>
+            <a href="http://austin.passy.co" target="_blank">Austin Passy</a>
+        </li>
+        <li>
+            <?php esc_html_e( 'Twitter:', CustomLogin::DOMAIN ); ?>
+            <a href="https://twitter.com/TheFrosty" target="_blank">TheFrosty</a>
+        </li>
+        <li>
+            <?php esc_html_e( 'GitHub:', CustomLogin::DOMAIN ); ?>
+            <a href="https://github.com/thefrosty/custom-login/issues" target="_blank"><?php
+                esc_html_e( 'GitHub:', CustomLogin::DOMAIN );
+                ?></a>
+        </li>
+    </ul>
+<?php
+
+$object->createPostbox(
+    'frosty-media-author',
+    sprintf(
+        esc_attr__( 'Custom Login v%s', CustomLogin::DOMAIN ), $object->getCustomLogin()->getVersion()
+    ),
+    ob_get_clean()
 );
-
-CL_Settings_API::create_postbox( 'frosty-media-author', sprintf( __( 'Custom Login v%s', Custom_Login_Bootstrap::DOMAIN ), CUSTOM_LOGIN_VERSION ), $content );

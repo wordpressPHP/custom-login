@@ -25,12 +25,21 @@
  */
 //@formatter:on
 
+namespace PassyCo;
+
+use PassyCo\CustomLogin\CustomLogin;
+use PassyCo\CustomLogin\Psr4Autoloader;
+
 // Exit if accessed directly
 defined( 'ABSPATH' ) || exit;
 
-require_once __DIR__ . '/includes/class-custom-login.php';
+require_once __DIR__ . '/src/Psr4Autoloader.php';
 
-defined( 'CUSTOM_LOGIN_FILE' ) || define( 'CUSTOM_LOGIN_FILE', __FILE__ );
-defined( 'CUSTOM_LOGIN_VERSION' ) || define( 'CUSTOM_LOGIN_VERSION', '4.0.0-20160828' );
+( new Psr4Autoloader() )->addNamespace( 'PassyCo\\CustomLogin', __DIR__ . '/src' )->register();
 
-new Custom_Login_Bootstrap( CUSTOM_LOGIN_FILE, CUSTOM_LOGIN_VERSION );
+( $c = new CustomLogin() )
+    ->setDirectory( plugin_dir_path( __FILE__ ) )
+    ->setFile( __FILE__ )
+    ->setUrl( plugins_url( '', __FILE__ ) )
+    ->setVersion( '4.0.0-20170302' )
+    ->run();

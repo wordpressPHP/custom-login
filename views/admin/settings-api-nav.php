@@ -1,16 +1,26 @@
 <?php
 
-echo '<ul class="cl-sections-menu">';
+use PassyCo\CustomLogin\Common;
+use PassyCo\CustomLogin\Api\SettingsApi;
 
-foreach ( CL_Settings_API::get_instance()->settings_sections as $section ) {
-
-	$using_customizer = CL_Common::using_customizer();
-
-	printf( '<li><a href="%s" data-tab-id="%s">%s</a></li>',
-		isset( $section[ 'href' ] ) ? $using_customizer ? $section[ 'href' ] : 'javascript:;' : 'javascript:;',
-		$section[ 'id' ],
-		$section[ 'title' ]
-	);
+// Return if we don't have the correct object
+if ( ! isset( $object ) || ! ( $object instanceof SettingsApi ) ) {
+    return;
 }
 
-echo '</ul>';
+?>
+    <ul class="CustomLogin__sections-menu">
+        <?php
+        foreach ( $object->getSettingsSections() as $section ) {
+
+            $using_customizer = Common::usingCustomizer();
+
+            printf( '<li><a href="%s" data-tab-id="%s">%s</a></li>',
+                isset( $section['href'] ) ? $using_customizer ? $section['href'] : 'javascript:;' :
+                    'javascript:;',
+                $section['id'],
+                $section['title']
+            );
+        } ?>
+    </ul>
+<?php
