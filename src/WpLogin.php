@@ -59,7 +59,7 @@ class WpLogin extends AbstractLogin implements WpHooksInterface {
         if ( Common::getOption( 'animate.css', 'design', 'off' ) === Common::ON ) {
             wp_enqueue_style(
                 'animate',
-                $this->getCustomLogin()->getUrl() . 'css/animate.min.css',
+                $this->getCustomLogin()->getUrl() . '/assets/css/animate.min.css',
                 [ 'login' ],
                 '3.5.1',
                 'screen'

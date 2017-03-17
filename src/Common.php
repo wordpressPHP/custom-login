@@ -68,7 +68,7 @@ class Common extends AbstractStaticLogin {
      * @param null|string|array $args Optional array to pass to the view.
      */
     public static function renderView( $view_path, $object = null, $args = null ) {
-        include self::getDir() . "views/{$view_path}.php";
+        include self::getDir() . "templates/parts/{$view_path}.php";
     }
 
     /**

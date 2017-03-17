@@ -69,7 +69,9 @@ class SettingsApi extends AbstractLogin implements WpHooksInterface {
             __( 'Custom Login', 'custom-login' ),
             Common::getOption( 'capability', 'general', 'manage_options' ),
             CustomLogin::DOMAIN,
-            [ $this, 'settingsPage' ]
+            function() {
+                Common::renderView( 'admin/settings-api', $this );
+            }
         );
 
         $this->addAction(
@@ -82,13 +84,6 @@ class SettingsApi extends AbstractLogin implements WpHooksInterface {
             [ $this, 'adminPrintFooterScripts' ],
             99
         );
-    }
-
-    /**
-     * Display the plugin settings page
-     */
-    protected function settingsPage() {
-        Common::renderView( 'admin/settings-api', $this );
     }
 
     /**
@@ -122,42 +117,42 @@ class SettingsApi extends AbstractLogin implements WpHooksInterface {
      */
     protected function registerAdminScripts() {
         wp_register_script( CustomLogin::DOMAIN,
-            $this->getCustomLogin()->getUrl() . 'js/admin.js',
+            $this->getCustomLogin()->getUrl() . '/assets/js/admin.js',
             [ 'jquery' ],
             $this->getCustomLogin()->getVersion(),
             true
         );
 
         wp_register_script( 'wp-color-picker-alpha',
-            $this->getCustomLogin()->getUrl() . 'js/wp-color-picker-alpha.js',
+            $this->getCustomLogin()->getUrl() . '/assets/js/wp-color-picker-alpha.js',
             [ 'wp-color-picker' ],
             '1.2.1',
             true
         );
 
         wp_register_script( 'codemirror',
-            $this->getCustomLogin()->getUrl() . 'js/codemirror.js',
+            $this->getCustomLogin()->getUrl() . '/assets/js/codemirror.js',
             [],
             $this->getCustomLogin()->getVersion(),
             true
         );
 
         wp_register_style( CustomLogin::DOMAIN,
-            $this->getCustomLogin()->getUrl() . 'css/admin.css',
+            $this->getCustomLogin()->getUrl() . '/assets/css/admin.css',
             false,
             $this->getCustomLogin()->getVersion(),
             'screen'
         );
 
         wp_register_style( 'bulma-framework',
-            $this->getCustomLogin()->getUrl() . 'css/bulma.css',
+            $this->getCustomLogin()->getUrl() . '/assets/css/bulma.css',
             false,
             '0.0.12',
             'screen'
         );
 
         wp_register_style( 'codemirror',
-            $this->getCustomLogin()->getUrl() . 'css/codemirror.css',
+            $this->getCustomLogin()->getUrl() . '/assets/css/codemirror.css',
             false,
             '5.12.0',
             'screen'
@@ -170,7 +165,7 @@ class SettingsApi extends AbstractLogin implements WpHooksInterface {
      * @param string $hook
      */
     protected function adminEnqueueScripts( $hook ) {
-        if ( 'settings_page_' . CustomLogin::DOMAIN !== $hook ) {
+        if ( $this->getSettingsPageHook() !== $hook ) {
             return;
         }
 
@@ -181,7 +176,7 @@ class SettingsApi extends AbstractLogin implements WpHooksInterface {
 
         /* jQuery Sticky */
         wp_enqueue_script( 'sticky',
-            $this->getCustomLogin()->getUrl() . 'js/jquery.sticky.js',
+            $this->getCustomLogin()->getUrl() . '/assets/js/jquery.sticky.js',
             [ 'jquery' ],
             '1.0.0',
             true
@@ -191,7 +186,7 @@ class SettingsApi extends AbstractLogin implements WpHooksInterface {
         wp_enqueue_script( [ CustomLogin::DOMAIN, 'codemirror' ] );
 
         /**
-         * @param CustomLogin $this->getCustomLogin()
+         * @param CustomLogin $this ->getCustomLogin()
          */
         do_action( CustomLogin::DOMAIN . '_admin_enqueue_scripts', $this->getCustomLogin() );
     }
@@ -457,5 +452,14 @@ class SettingsApi extends AbstractLogin implements WpHooksInterface {
         }
 
         return $has_upgrade;
+    }
+
+    /**
+     * Gets the name of the hook when on the Custom Login settings page.
+     *
+     * @return string
+     */
+    private function getSettingsPageHook() {
+        return 'settings_page_' . CustomLogin::DOMAIN;
     }
 }

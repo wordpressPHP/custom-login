@@ -4,6 +4,7 @@ namespace PassyCo\CustomLogin\Admin;
 
 use Exception;
 use PassyCo\CustomLogin\AbstractStaticLogin;
+use PassyCo\CustomLogin\Common;
 use PassyCo\CustomLogin\CustomLogin;
 
 /**
@@ -30,9 +31,9 @@ class AdminNotices extends AbstractStaticLogin {
     /**
      * The HTML view of the notices.
      *
-     * @param Exception $_exception
+     * @param Exception $exception
      */
-    public static function renderNotice( Exception $_exception ) {
-        include self::getDir() . 'views/notices/notice.php';
+    public static function renderNotice( Exception $exception ) {
+        Common::renderView( 'notices/notice', $exception );
     }
 }

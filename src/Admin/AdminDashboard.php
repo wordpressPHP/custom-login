@@ -52,7 +52,7 @@ class AdminDashboard extends AbstractLogin implements WpHooksInterface {
     protected function enqueueScripts() {
         wp_enqueue_style(
             self::ID,
-            $this->getCustomLogin()->getUrl() . 'css/dashboard.css',
+            $this->getCustomLogin()->getUrl() . '/assets/css/dashboard.css',
             [],
             $this->getCustomLogin()->getVersion(),
             'screen'
@@ -60,7 +60,7 @@ class AdminDashboard extends AbstractLogin implements WpHooksInterface {
 
         wp_enqueue_script(
             self::ID,
-            $this->getCustomLogin()->getUrl() . 'js/dashboard.js',
+            $this->getCustomLogin()->getUrl() . '/assets/js/dashboard.js',
             [ 'jquery' ],
             $this->getCustomLogin()->getVersion(),
             true
@@ -137,7 +137,9 @@ class AdminDashboard extends AbstractLogin implements WpHooksInterface {
         } else {
 
             $extension = _x( 'Custom Login Add-on Plugins', 'A plugin that adds onto the Custom Login functions.', CustomLogin::DOMAIN );
-            $content .= sprintf( '<li><strong>%s</strong> <span class="dashicons dashicons-editor-help" data-toggle=".cl-extensions-desc"></span></li>', $extension );
+            $content .= '<li>';
+            $content .= sprintf( '<strong>%s</strong> ', $extension );
+            $content .= '<span class="dashicons dashicons-editor-help" data-toggle=".cl-extensions-desc"></span></li>';
             $content .= '<li>' . Common::getExtensionDescription() . '</li>';
 
             foreach ( $rss_items as $item ) {

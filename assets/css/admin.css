@@ -1,48 +1,30 @@
-.cl-container {
+.CustomLogin__container {
     background-color: #f5f5f5;
     border: 1px solid #dedede;
     box-shadow: 0 1px 1px rgba(0, 0, 0, 0.04);
     margin-top: 5px;
-    /* Initially we don't want any height, and we want the contents to be hidden */
-    max-height: 0;
-    opacity: 0.1;
-    overflow: hidden;
-
-    /* Set our transitions up. */
-    -webkit-transition: all 0.8s;
-    -webkit-transition-property: opacity, max-height;
-    -moz-transition: all 0.8s;
-    -moz-transition-property: opacity, max-height;
-    transition: all 0.8s;
-    transition-property: opacity, max-height;
 }
 
-/* @ref http://css3.bradshawenterprises.com/animating_height/ */
-.cl-container.loaded {
-    /* Set the max-height to something large. 'px' required. */
-    max-height: 99999px;
-    opacity: 1;
-}
-
-.cl-container .cl-header {
+.CustomLogin__container .CustomLogin__header {
     box-sizing: border-box;
     float: none !important;
     position: relative !important;
     width: 100% !important;
 }
 
-.cl-header h2,
-.cl-header h3 {
+.CustomLogin__header h2,
+.CustomLogin__header h3 {
     display: inline-block;
     padding-right: 5px;
 }
 
-.cl-header a {
+.CustomLogin__header a {
     color: inherit;
     text-decoration: none;
 }
 
-.cl-container .cl-header, .cl-container .cl-footer {
+.CustomLogin__container .CustomLogin__header,
+.CustomLogin__container .CustomLogin__footer {
     padding: 6px 10px;
 }
 
@@ -110,30 +92,31 @@
 }
 
 /*******SIDEBAR/MAIN *************/
-.cl-container .cl-sidebar, .cl-container .cl-main {
+.CustomLogin__container .CustomLogin__sidebar,
+.CustomLogin__container .CustomLogin__main {
     min-height: 950px;
 }
 
 /************ SIDEBAR ************/
-.cl-sidebar {
+.CustomLogin__sidebar {
     float: left;
     width: 222px;
 }
 
-#wpbody-content .cl-sidebar .metabox-holder {
+#wpbody-content .CustomLogin__sidebar .metabox-holder {
     padding-top: 0;
 }
 
-.cl-sections-menu {
+.CustomLogin__sections-menu {
     border-top: 1px solid #dedede;
     margin-top: 0;
 }
 
-.cl-sections-menu li {
+.CustomLogin__sections-menu li {
     margin-bottom: 0;
 }
 
-.cl-sections-menu li > a {
+.CustomLogin__sections-menu li > a {
     border-bottom: 1px solid #dedede;
     box-shadow: 0 1px 0 #fff;
     color: #555;
@@ -145,49 +128,49 @@
     transition: border-bottom 190ms;;
 }
 
-.cl-sections-menu li > a:hover {
+.CustomLogin__sections-menu li > a:hover {
     color: #222;
     border-bottom-color: #00426d;
 }
 
-.cl-sections-menu li > a.active {
+.CustomLogin__sections-menu li > a.active {
     background-color: #0074a2;
     border-bottom: 2px solid #00426d;
     color: #efefef;
 }
 
 /* Addons */
-.cl-sections-menu li > a[href="#custom_login_extensions"] {
+.CustomLogin__sections-menu li > a[href="#custom_login_extensions"] {
     background-color: #e7ecef;
     color: #474747;
     font-weight: bold;
 }
 
-.cl-sections-menu li > a.active[href="#custom_login_extensions"] {
+.CustomLogin__sections-menu li > a.active[href="#custom_login_extensions"] {
 }
 
-.cl-sidebar .postbox {
+.CustomLogin__sidebar .postbox {
     border-right: none;
     border-left: none;
     font-size: 80%;
-    min-width: 222px; /* Same as .cl-sidebar width */
+    min-width: 222px; /* Same as .CustomLogin__sidebar width */
     margin-bottom: -1px;
 }
 
-.cl-sidebar .star-rating {
+.CustomLogin__sidebar .star-rating {
     text-decoration: none;
 }
 
-.cl-sidebar .star-rating i {
+.CustomLogin__sidebar .star-rating i {
     color: #fddb5a;
 }
 
-.cl-sidebar .cl-extensions-desc {
+.CustomLogin__sidebar .CustomLogin__extensions-desc {
     display: none;
 }
 
 /************ MAIN ***************/
-.cl-main {
+.CustomLogin__main {
     background: none repeat scroll 0 0 #fcfcfc;
     border-top: 1px solid #dedede;
     border-left: 1px solid #d8d8d8;
@@ -198,31 +181,31 @@
     z-index: 1;
 }
 
-.cl-main > .group {
+.CustomLogin__main > .group {
     display: none;
 }
 
-.no-js .cl-main > .group {
+.no-js .CustomLogin__main > .group {
     display: block;
 }
 
-.cl-container .cl-main h3 {
+.CustomLogin__container .CustomLogin__main h3 {
     border-bottom: 1px solid #e7e7e7;
     line-height: 2em;
     margin-top: 0;
 }
 
-.cl-main .form-table {
+.CustomLogin__main .form-table {
     clear: none;
     margin-top: 0 !important;
 }
 
-.cl-main .form-table th {
+.CustomLogin__main .form-table th {
     font-weight: 400;
     width: inherit;
 }
 
-.cl-main .form-table th h4 {
+.CustomLogin__main .form-table th h4 {
     font-weight: 600;
     font-size: 1.25em;
     margin: 0.95em 0;
@@ -235,52 +218,52 @@ p.style-pack-img-wrapper img {
 }
 
 /* CALLBACKS */
-.cl-main .checkbox-wrap {
+.CustomLogin__main .checkbox-wrap {
     display: inline-block;
     float: left;
     margin: 0 35px 0 0;
     position: relative;
 }
 
-.cl-main .cl-colorpicker-wrap {
+.CustomLogin__main .CustomLogin__colorpicker-wrap {
     position: relative;
 }
 
-.cl-main .cl-colorpicker-wrap * {
+.CustomLogin__main .CustomLogin__colorpicker-wrap * {
     transition: none;
 }
 
-.cl-main .wp-picker-container {
+.CustomLogin__main .wp-picker-container {
     float: left;
     margin-right: 10px;
 }
 
-.cl-main .cl-colorpicker-wrap .checkbox-wrap {
+.CustomLogin__main .CustomLogin__colorpicker-wrap .checkbox-wrap {
     float: left;
 }
 
-.cl-main .cl-colorpicker-wrap .checkbox-wrap > input {
+.CustomLogin__main .CustomLogin__colorpicker-wrap .checkbox-wrap > input {
     float: none;
 }
 
-.cl-container select {
+.CustomLogin__container select {
     min-width: 120px;
 }
 
-.cl-main .img-wrapper {
+.CustomLogin__main .img-wrapper {
     height: auto;
     margin: 10px 0;
     width: 100%;
 }
 
-.cl-main .img-wrapper img {
+.CustomLogin__main .img-wrapper img {
     border: 1px solid #aaa;
     box-shadow: 0 0 2px 0 #BFBFBF;
     height: auto;
     width: 250px;
 }
 
-.cl-main .img-wrapper a {
+.CustomLogin__main .img-wrapper a {
     display: block;
 }
 
@@ -300,12 +283,12 @@ div[id$="_ace"] * {
 }
 
 @media screen and (max-width: 600px) {
-    .cl-sidebar {
+    .CustomLogin__sidebar {
         float: none;
         width: 100%;
     }
 
-    .cl-main {
+    .CustomLogin__main {
         float: none;
         margin-left: 0;
     }
@@ -396,7 +379,7 @@ div[id$="_ace"] * {
  * Checkboxes and radios
  */
 
-.cl-control {
+.CustomLogin__control {
     position: relative;
     display: inline-block;
     padding-left: 2.5rem;
@@ -404,7 +387,7 @@ div[id$="_ace"] * {
     cursor: pointer;
 }
 
-.cl-control input {
+.CustomLogin__control input {
     position: absolute;
     opacity: 0;
     z-index: -1; /* Put the input behind the label so it doesn't overlay text */
@@ -423,33 +406,30 @@ div[id$="_ace"] * {
     text-align: center;
     background: #eee center center no-repeat;
     background-size: 50% 50%;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
     user-select: none;
 }
 
 /* Hover state */
 /* Uncomment if you need it, but be aware of the sticky iOS states.
-.cl-control:hover .control-indicator {
+.CustomLogin__control:hover .control-indicator {
   color: #fff;
   background-color: #ccc;
 }
 */
 
 /* Focus */
-.cl-control input:focus ~ .control-indicator {
+.CustomLogin__control input:focus ~ .control-indicator {
     box-shadow: 0 0 0 .075rem #fff, 0 0 0 .2rem #0074d9;
 }
 
 /* Checked state */
-.cl-control input:checked ~ .control-indicator {
+.CustomLogin__control input:checked ~ .control-indicator {
     color: #fff;
     background-color: #0074d9;
 }
 
 /* Active */
-.cl-control input:active ~ .control-indicator {
+.CustomLogin__control input:active ~ .control-indicator {
     color: #fff;
     background-color: #84c6ff;
 }

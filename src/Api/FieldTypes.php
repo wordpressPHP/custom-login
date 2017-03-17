@@ -4,6 +4,11 @@ namespace PassyCo\CustomLogin\Api;
 
 use PassyCo\CustomLogin\Common;
 
+/**
+ * Class FieldTypes
+ *
+ * @package PassyCo\CustomLogin\Api
+ */
 class FieldTypes {
 
     /**

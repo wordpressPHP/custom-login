@@ -10,12 +10,8 @@ if ( ! function_exists( 'CUSTOMLOGIN' ) ) {
 	 *
 	 * @since 2.0.0
 	 * @deprecated 4.0.0
-	 *
-	 * @return Custom_Login_Bootstrap
 	 */
 	function CUSTOMLOGIN() {
-		_deprecated_function( __FUNCTION__, '4.0.0', 'Custom_Login_Bootstrap::get_instance()' );
-
-		return Custom_Login_Bootstrap::get_instance();
+		_deprecated_function( __FUNCTION__, '4.0.0', null );
 	}
 }

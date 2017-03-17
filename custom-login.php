@@ -37,7 +37,7 @@ require_once __DIR__ . '/src/Psr4Autoloader.php';
 
 ( new Psr4Autoloader() )->addNamespace( 'PassyCo\\CustomLogin', __DIR__ . '/src' )->register();
 
-( $c = new CustomLogin() )
+( new CustomLogin() )
     ->setDirectory( plugin_dir_path( __FILE__ ) )
     ->setFile( __FILE__ )
     ->setUrl( plugins_url( '', __FILE__ ) )
