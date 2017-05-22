@@ -1,29 +1,36 @@
-jQuery(document).ready(function ($) {
+(function ($) {
 
-    var CL_Timeout = 200,
-        dashboard_primary = $('#dashboard_primary');
+  "use strict";
 
-    if (!dashboard_primary.find('.rss-widget').eq(1).length) {
-        CL_Timeout = 2500;
-    }
+  var CustomLoginDashboard = {
+    timeout: 200,
+    dashboardPrimary: $('#dashboard_primary'),
+    clObject: window.cl_admin_dashboard,
 
-    if (!cl_admin_dashboard.is_active) {
-        setTimeout(function () {
-            dashboard_primary.find('.rss-widget').eq(1).find('ul').append('<a class="rsswidget" href="' +
-                cl_admin_dashboard.feed_url + '">' + cl_admin_dashboard.site_title + ': ' +
-                cl_admin_dashboard.feed_title + '</a>');
-        }, CL_Timeout);
-    }
+    init: function () {
+      if (!this.dashboardPrimary.find('.rss-widget').eq(1).length) {
+        this.timeout = 2500;
+      }
 
-    /**
-     *** Toggles ************************
-     ************************************
-     ************************************
-     */
-    $('[data-toggle]').each(function (index, element) {
+      if (!this.clObject.is_active) {
+        setTimeout(this.timeoutCallback(), this.timeout);
+      }
+
+      $('[data-toggle]').each(function (index, element) {
         $(element).on('click', function () {
-            $($(element).data('toggle')).slideToggle('fast');
+          $($(element).data('toggle')).slideToggle('fast');
         });
-    });
+      });
+    },
 
-});
+    timeoutCallback: function () {
+      this.dashboardPrimary.find('.rss-widget')
+        .eq(1)
+        .find('ul')
+        .append('<a class="rsswidget" href="' + this.clObject.feed_url + '">' + this.clObject.site_title + ': ' + this.clObject.feed_title + '</a>');
+    }
+  };
+
+  $(document).ready(CustomLoginDashboard.init());
+
+}(jQuery));

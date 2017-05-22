@@ -2,6 +2,8 @@
 bin-debug/
 bin-release/
 bower_components/
+node_modules/
+vendor/
 
 # Numerous always-ignore extensions
 *.diff

@@ -10,9 +10,9 @@ namespace PassyCo\CustomLogin;
 class Init implements \IteratorAggregate {
 
     /**
-     * A container for objects that implement CL_WordPress_Hooks interface
+     * A container for objects that implement WpHooksInterface interface
      *
-     * @var array
+     * @var WpHooksInterface[]
      */
     public $plugin_components = [];
 

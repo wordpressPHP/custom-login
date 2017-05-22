@@ -79,8 +79,8 @@ gulp.task('styles', function () {
       errLogToConsole: true,
       outputStyle: 'compact',
       //outputStyle: 'compressed',
-      // outputStyle: 'nested',
-      // outputStyle: 'expanded',
+      //outputStyle: 'nested',
+      //outputStyle: 'expanded',
       precision: 10
     }))
     .pipe(sourcemaps.write({includeContent: false}))
@@ -89,7 +89,6 @@ gulp.task('styles', function () {
       'last 2 version',
       '> 1%',
       'safari 5',
-      'ie 8',
       'ie 9',
       'opera 12.1',
       'ios 6',

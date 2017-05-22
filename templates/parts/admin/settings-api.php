@@ -40,7 +40,7 @@ if ( ! isset( $object ) || ! ( $object instanceof SettingsApi ) ) {
                     <?php submit_button(
                         __( 'Save Changes', CustomLogin::DOMAIN ),
                         'primary',
-                        'cl_save',
+                        'CustomLogin__save',
                         false
                     ); ?>
                 </div>
